@@ -10,7 +10,6 @@ class ImageMaskingBuilder:
         self.image: np.ndarray = self.__load_image_grayscale()
 
         self.set_kernel_size()
-        self.convert_image_grayscale()
 
     # TODO: draft
     def __load_image(self) -> np.ndarray:

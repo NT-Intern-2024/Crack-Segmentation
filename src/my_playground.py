@@ -62,8 +62,8 @@ def add_data(image_data: list):
 add_data(
     [
         image8.image,
-        image8.do_adaptive_mean().image,
-        image8.do_denoise_morphology_combined().image,
+        image8.do_adaptive_mean().image_file,
+        image8.do_denoise_morphology_combined().image_file,
     ]
 )
 
@@ -71,8 +71,8 @@ image8.reset_image()
 add_data(
     [
         image8.image,
-        image8.do_adaptive_mean().image,
-        image8.do_denoise_morphology_combined().image,
+        image8.do_adaptive_mean().image_file,
+        image8.do_denoise_morphology_combined().image_file,
     ]
 )
 
