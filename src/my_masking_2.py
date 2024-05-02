@@ -10,7 +10,6 @@ class ImageMaskingBuilder:
         self.image: np.ndarray = self.__load_image_grayscale()
 
         self.set_kernel_size()
-        self.convert_image_grayscale()
 
     # TODO: draft
     def __load_image(self) -> np.ndarray:
@@ -90,3 +89,6 @@ class ImageMaskingBuilder:
 
     def reset_image(self):
         self.image = self.__load_image_grayscale()
+
+    def get_contours(self):
+        return cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

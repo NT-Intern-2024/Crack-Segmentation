@@ -1,11 +1,12 @@
 # Custom
 runs/
 .vscode/
+#output/
+export/
 
-output/
-data/*
-!data/Palm/FEMALE/*
-!data/Palm/After1/*
+data/
+!data/Palm/FEMALE
+!data/Palm/After1
 
 src/masking/
 playground/
