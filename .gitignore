@@ -1,7 +1,7 @@
 # Custom
 runs/
 .vscode/
-output/
+#output/
 
 data/
 !data/Palm/FEMALE
