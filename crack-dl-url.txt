@@ -1,0 +1,24 @@
+https://github.com/DZDL/DeepSegmentor  *
+https://github.com/khanhha/crack_segmentation *
+https://github.com/choiw-public/Crack-segmentation *
+https://github.com/niemiecjakub/deep-neural-networks-in-structural-health-monitoring *
+https://github.com/dlr-wf/crackpy?tab=readme-ov-file **
+https://github.com/anishreddy3/Crack-Semantic-Segmentation  **
+https://github.com/HqiTao/CT-crackseg  ***
+https://github.com/konskyrt/Concrete-Crack-Detection-Segmentation   ***
+https://github.com/qinnzou/DeepCrack **
+
+https://github.com/aadhithya/cracke?tab=readme-ov-file **
+https://github.com/nhorro/tensorflow-crack-classification **
+https://github.com/kanishk307/crack-detection-beproject **
+https://github.com/ayush-agarwal-0502/Concrete-Crack-Detection *
+https://github.com/yhlleo/DeepSegmentor *
+https://github.com/biasalesc/crack-detection?tab=readme-ov-file *
+https://github.com/mo26-web/Surface-Crack-Detection-with-DL *
+https://github.com/rakehsaleem/DeepLearning-ConcreteDataset *
+
+
+
+https://github.com/shomnathsomu/crack-detection-opencv  *
+https://github.com/Yuki-11/CSSR **
+
