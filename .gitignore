@@ -4,8 +4,8 @@ runs/
 
 output/
 data/*
-!data/Palm/FEMALE
-!data/Palm/After1
+!data/Palm/FEMALE/*
+!data/Palm/After1/*
 
 src/masking/
 playground/
