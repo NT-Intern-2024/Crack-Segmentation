@@ -2,6 +2,7 @@
 runs/
 .vscode/
 #output/
+export/
 
 data/
 !data/Palm/FEMALE

@@ -56,3 +56,8 @@ def export_masking_dataset(output_path: str = "data/Palm/output/"):
 
             export_image(image, file_name=image_file, folder_path=output_path)
             print(f"export image: {image_file}")
+
+
+def check_path_compatibility(folder_path: str):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)

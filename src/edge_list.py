@@ -3,15 +3,16 @@ import my_masking_2 as mk2
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import contour_plotter as ep
 
-# image_path = my_utils.path
-image_path = "../output/IMG_0001.JPG"
+image_path = my_utils.path
+# image_path = "../output/IMG_0001.JPG"
 
 image_file = mk2.ImageMaskingBuilder(image_path)
 image_file.do_canny()
 
 # Find contours
-contours, _ = cv2.findContours(image_file.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+contours, _ = image_file.get_contours()
 
 # Initialize a list to store contours with points
 contours_with_points = []
