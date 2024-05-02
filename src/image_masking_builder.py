@@ -92,3 +92,7 @@ class ImageMaskingBuilder:
 
     def get_contours(self):
         return cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    def show(self, window_name: str = "My Image", size_x: int = 600, size_y: int = 600):
+        # cv2.resizeWindow(window_name, 400, 400)
+        cv2.imshow(window_name, cv2.resize(self.image, (size_x, size_y)))

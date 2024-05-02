@@ -1,7 +1,7 @@
 import cv2
+import numpy as np
 from matplotlib import pyplot as plt
 import os
-import my_masking_2 as mk2
 
 path = "../data/Palm/After1/IMG_0016.JPG"
 path_best = "../data/mod/palm-tone-edit.png"
@@ -61,3 +61,11 @@ def export_masking_dataset(output_path: str = "data/Palm/output/"):
 def check_path_compatibility(folder_path: str):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
+
+
+def show_image(window_name: str = "My Image", image: np.ndarray = None, size_x: int = 600, size_y: int = 600):
+    # cv2.resizeWindow(window_name, 400, 400)
+    if image is None:
+        print(f"image not pass")
+        return
+    cv2.imshow(window_name, cv2.resize(image, (size_x, size_y)))

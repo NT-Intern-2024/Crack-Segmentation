@@ -1,5 +1,5 @@
 import my_utils
-import my_masking_2 as mk2
+import image_masking_builder as imb
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +8,7 @@ import contour_plotter as ep
 image_path = my_utils.path
 # image_path = "../output/IMG_0001.JPG"
 
-image_file = mk2.ImageMaskingBuilder(image_path)
+image_file = imb.ImageMaskingBuilder(image_path)
 image_file.do_canny()
 
 # Find contours

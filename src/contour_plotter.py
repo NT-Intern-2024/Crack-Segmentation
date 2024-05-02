@@ -1,13 +1,13 @@
-import my_masking_2 as mk2
+import image_masking_builder as imb
 import numpy as np
 import matplotlib.pyplot as plt
 import my_utils
 
 
 class ContourPlotter:
-    def __init__(self, image_file: mk2.ImageMaskingBuilder):
+    def __init__(self, image_file: imb.ImageMaskingBuilder):
         self.contours = None
-        self.image_file: mk2.ImageMaskingBuilder = image_file
+        self.image_file: imb.ImageMaskingBuilder = image_file
         self.__my_plot = None
 
     def __plot(self):

@@ -11,6 +11,8 @@ data/
 src/masking/
 playground/
 
+src/my_playground2.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
