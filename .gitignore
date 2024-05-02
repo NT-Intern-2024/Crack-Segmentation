@@ -3,7 +3,7 @@ runs/
 .vscode/
 
 output/
-data/
+data/*
 !data/Palm/FEMALE
 !data/Palm/After1
 
