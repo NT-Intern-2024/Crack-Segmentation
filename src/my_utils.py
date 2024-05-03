@@ -69,3 +69,7 @@ def show_image(window_name: str = "My Image", image: np.ndarray = None, size_x: 
         print(f"image not pass")
         return
     cv2.imshow(window_name, cv2.resize(image, (size_x, size_y)))
+
+
+def check_loaded_image(image: np.ndarray):
+    assert image is not None, "MyDebug: imread error"

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+import my_utils
 
 
 class ImageMaskingBuilder:
@@ -8,15 +9,18 @@ class ImageMaskingBuilder:
         self.kernel_size = None
         self.image_path: str = image_path
         self.image: np.ndarray = self.__load_image_grayscale()
-
         self.set_kernel_size()
 
     # TODO: draft
     def __load_image(self) -> np.ndarray:
-        return cv2.imread(self.image_path)
+        image = cv2.imread(self.image_path)
+        my_utils.check_loaded_image(image)
+        return image
 
     def __load_image_grayscale(self) -> np.ndarray:
-        return cv2.imread(self.image_path, 0)
+        image = cv2.imread(self.image_path)
+        my_utils.check_loaded_image(image)
+        return image
 
     # TODO: Draft
     def convert_image_grayscale(self):
@@ -57,6 +61,7 @@ class ImageMaskingBuilder:
     def do_denoise_morphology_combined(self):
         return self.do_denoise_morphology_close().do_denoise_morphology_open()
 
+    # TODO: Draft
     def do_sobel_combined(self):
         sobel_x = cv2.Sobel(self.image, cv2.CV_64F, 1, 0)
         sobel_y = cv2.Sobel(self.image, cv2.CV_64F, 0, 1)
