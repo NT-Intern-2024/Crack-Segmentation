@@ -8,17 +8,18 @@ class ImageMaskingBuilder:
     def __init__(self, image_path: str):
         self.kernel_size = None
         self.image_path: str = image_path
-        self.image: np.ndarray = self.__load_image_grayscale()
+        self.image: cv2.typing.MatLike = self.__load_image_grayscale()
         self.set_kernel_size()
 
     # TODO: draft
-    def __load_image(self, flags: int) -> np.ndarray:
+    def __load_image(self, flags: int = cv2.IMREAD_UNCHANGED) -> cv2.typing.MatLike:
         change_to_project_path()
-        image = cv2.imread(self.image_path)
+        image = cv2.imread(self.image_path, flags)
         check_loaded_image(image)
+        print(f"type: {type(image)}")
         return image
 
-    def __load_image_grayscale(self) -> np.ndarray:
+    def __load_image_grayscale(self) -> cv2.typing.MatLike:
         image = self.__load_image(cv2.IMREAD_GRAYSCALE)
         return image
 
@@ -117,6 +118,6 @@ class ImageMaskingBuilder:
     def is_image_loaded(self):
         return self.image is not None
 
-    def show(self, window_name: str = "My Image", size_x: int = 600, size_y: int = 600):
+    def show(self, window_name: str = "My Image", size_x: int = 500, size_y: int = 650):
         # cv2.resizeWindow(window_name, 400, 400)
         cv2.imshow(window_name, cv2.resize(self.image, (size_x, size_y)))

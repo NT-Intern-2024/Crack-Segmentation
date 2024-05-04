@@ -103,6 +103,8 @@ def change_to_project_path():
     script_path = os.path.dirname(os.path.abspath(__file__))
     current_path = os.getcwd()
 
+    print(f"Current path: {current_path}")
+
     if current_path != script_path:
         os.chdir(script_path)
         print("Changed current path to script path:", script_path)
