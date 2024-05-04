@@ -9,6 +9,7 @@ data/
 !data/Palm/After1
 
 src/masking/
+src/ref/
 playground/
 
 src/my_playground_test*.py

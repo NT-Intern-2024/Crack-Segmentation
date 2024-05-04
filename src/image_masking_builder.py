@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-import my_utils
+from my_utils import *
 
 
 class ImageMaskingBuilder:
@@ -12,14 +12,14 @@ class ImageMaskingBuilder:
         self.set_kernel_size()
 
     # TODO: draft
-    def __load_image(self) -> np.ndarray:
+    def __load_image(self, flags: int) -> np.ndarray:
+        change_to_project_path()
         image = cv2.imread(self.image_path)
-        my_utils.check_loaded_image(image)
+        check_loaded_image(image)
         return image
 
     def __load_image_grayscale(self) -> np.ndarray:
-        image = cv2.imread(self.image_path)
-        my_utils.check_loaded_image(image)
+        image = self.__load_image(cv2.IMREAD_GRAYSCALE)
         return image
 
     # TODO: Draft
@@ -30,17 +30,33 @@ class ImageMaskingBuilder:
         self.kernel_size: np.ndarray = np.ones((size, size), np.uint8)
 
     def do_adaptive_mean(self, block_size: int = 199, constant: int = 5):
-        self.image = cv2.adaptiveThreshold(self.image, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
-                                           cv2.THRESH_BINARY, block_size, constant)
+        self.image = cv2.adaptiveThreshold(
+            self.image,
+            255,
+            cv2.ADAPTIVE_THRESH_MEAN_C,
+            cv2.THRESH_BINARY,
+            block_size,
+            constant,
+        )
         return self
 
     def do_adaptive_gaussian(self, block_size: int = 199, constant: int = 5):
-        self.image = cv2.adaptiveThreshold(self.image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                           cv2.THRESH_BINARY, block_size, constant)
+        self.image = cv2.adaptiveThreshold(
+            self.image,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            block_size,
+            constant,
+        )
         return self
 
     def do_adaptive_mean_fix1(self):
-        return self.do_adaptive_mean(111, 13).do_denoise_morphology_close().do_denoise_morphology_open()
+        return (
+            self.do_adaptive_mean(111, 13)
+            .do_denoise_morphology_close()
+            .do_denoise_morphology_open()
+        )
 
     def do_equalize_histogram(self):
         self.image = cv2.equalizeHist(self.image)
@@ -97,6 +113,9 @@ class ImageMaskingBuilder:
 
     def get_contours(self):
         return cv2.findContours(self.image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    def is_image_loaded(self):
+        return self.image is not None
 
     def show(self, window_name: str = "My Image", size_x: int = 600, size_y: int = 600):
         # cv2.resizeWindow(window_name, 400, 400)
