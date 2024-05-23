@@ -2,10 +2,14 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import os
+import yaml
+
+# from constants import *
 
 path = "../data/Palm/After1/IMG_0016.JPG"
 path_best = "../data/mod/palm-tone-edit.png"
-dataset_path = "../data/Palm/After1"
+# dataset_path = "../data/Palm/After1"
+dataset_path = "../data/Palm/PalmAll/"
 
 
 def resize_image_show(image, width=600, height=600, inter=cv2.INTER_AREA):
@@ -43,7 +47,7 @@ def load_image(image_path: str):
 
 
 def export_image(
-    image: cv2.typing.MatLike, file_name: str, folder_path: str = "output/"
+        image: cv2.typing.MatLike, file_name: str, folder_path: str = "output/"
 ):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -56,7 +60,7 @@ def export_masking_dataset(output_path: str = "data/Palm/output/"):
     print(f"Export image: {output_path}")
     for image_file in images:
         if image_file.endswith(
-            (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG", ".BMP")
+                (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG", ".BMP")
         ):
             image = load_image(os.path.join(dataset_path, image_file))
 
@@ -65,15 +69,15 @@ def export_masking_dataset(output_path: str = "data/Palm/output/"):
 
 
 def check_path_compatibility(folder_path: str):
-    if not os.path.exists(folder_path):
+    if not is_path_exists(folder_path):
         os.makedirs(folder_path)
 
 
 def show_image(
-    window_name: str = "My Image",
-    image: np.ndarray = None,
-    size_x: int = 600,
-    size_y: int = 600,
+        window_name: str = "My Image",
+        image: np.ndarray = np.zeros(shape=(3, 3)),
+        size_x: int = 600,
+        size_y: int = 600,
 ):
     # cv2.resizeWindow(window_name, 400, 400)
     if image is None:
@@ -87,7 +91,6 @@ def check_loaded_image(image: np.ndarray):
 
 
 def get_my_image_path():
-
     os.getcwd()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     image_path = os.path.join(dir_path, path)
@@ -108,3 +111,24 @@ def change_to_project_path():
     if current_path != script_path:
         os.chdir(script_path)
         print("Changed current path to script path:", script_path)
+
+
+def is_path_exists(folder_path: str):
+    return os.path.exists(folder_path)
+
+
+def is_file_exits(folder_path: str):
+    return os.listdir(folder_path)
+
+
+def check_path_exists(folder_path: str, error_text: str = None):
+    if not is_path_exists(folder_path):
+        output_error_text = error_text if error_text is not None else f"'{folder_path}' not found."
+        raise FileNotFoundError(output_error_text)
+
+
+def load_config(file_name):
+    check_path_exists(file_name)
+    with open(file_name, 'r') as file:
+        config = yaml.safe_load(file)
+    return config

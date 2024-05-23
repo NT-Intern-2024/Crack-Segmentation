@@ -33,6 +33,22 @@ def adaptive_mean_fix1(image: cv2.typing.MatLike, image_path: str = ""):
     return image
 
 
+def apative_mean_fix2(image: cv2.typing.MatLike, image_path: str = ""):
+    image = get_image(image, image_path)
+    image = cv2.adaptiveThreshold(
+        image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 111, 13
+    )
+    # ทำ morphological closing เพื่อลบช่องว่างในเส้นของมือ
+    kernel = np.ones((3, 3), np.uint8)  # เปลี่ยน kernel เป็น (3, 3)
+    image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
+
+    # ทำ morphological opening เพื่อลบ noise เล็กๆ
+    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+    image = cv2.Canny(image, 50, 150)
+    return image
+
+
 def adaptive_gaussian(image: cv2.typing.MatLike, image_path: str = ""):
     image = get_image(image, image_path)
     return cv2.adaptiveThreshold(
@@ -114,7 +130,7 @@ def plot_datas(datas):
 
 
 def export_image(
-    image: cv2.typing.MatLike, file_name: str, folder_path: str = "output/"
+        image: cv2.typing.MatLike, file_name: str, folder_path: str = "output/"
 ):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -122,15 +138,15 @@ def export_image(
     cv2.imwrite(file_path, image)
 
 
-def export_masking_dataset(output_path: str = "data/Palm/output/"):
-    dataset_path = my_utils.dataset_path
-    images = os.listdir(dataset_path)
+def export_masking(image_path: str = my_utils.dataset_path, output_path: str = "../data/Palm/MaskOutput/"):
+    assert my_utils.is_path_exists(image_path), "dataset path error"
+    images = os.listdir(image_path)
     print(f"Export image: {output_path}")
     for image_file in images:
         if image_file.endswith(
-            (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG", ".BMP")
+                (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG", ".BMP")
         ):
-            image = load_image(os.path.join(dataset_path, image_file))
+            image = load_image(os.path.join(image_path, image_file))
             image_adapt = adaptive_mean_fix1(image=image)
 
             export_image(image_adapt, file_name=image_file, folder_path=output_path)

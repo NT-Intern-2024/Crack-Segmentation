@@ -27,12 +27,12 @@ image2_process2 = my_masking.equalize_histogram(image=image2_process1)
 image8 = imb.ImageMaskingBuilder(image_path)
 
 # Run
-image8.show("Original")
+# image8.show("Original")
 
-image8.do_equalize_histogram().do_adaptive_mean().do_denoise_morphology_open()
-image8.show("Process")
+# image8.do_equalize_histogram().do_adaptive_mean().do_denoise_morphology_open()
+# image8.show("Process")
 
-cv2.waitKey()
+# cv2.waitKey()
 
 
 datas = [
@@ -86,8 +86,8 @@ def add_data(image_data: list[np.ndarray]):
 # my_utils.plot_datas(datas)
 
 # TODO: export ภาพ ใช้บรรทัดนี้
-# my_masking.export_masking_dataset()
-
+# my_masking.export_masking(image_path="../data/CrackLS315/image", output_path="../data/output/CrackLS315/mask")
+# my_masking.export_masking(image_path="../data/Palm/etc", output_path="../output/etc/")
 
 # TODO: สร้างขอบมือ
 # image_contour = cp.ContourPlotter(image8)

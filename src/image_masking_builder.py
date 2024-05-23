@@ -1,6 +1,3 @@
-import cv2
-import numpy as np
-import os
 from my_utils import *
 
 
@@ -104,7 +101,7 @@ class ImageMaskingBuilder:
         return self
 
     def export_image(self, file_name: str, folder_path: str = "../output/"):
-        if not os.path.exists(folder_path):
+        if not is_path_exists(folder_path):
             os.makedirs(folder_path)
         file_path = os.path.join(folder_path, file_name)
         cv2.imwrite(file_path, self.image)

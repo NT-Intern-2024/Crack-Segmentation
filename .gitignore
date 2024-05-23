@@ -1,8 +1,11 @@
 # Custom
 runs/
 .vscode/
-#output/
+.idea/
+output/
 export/
+tool/
+test/
 
 data/
 !data/Palm/FEMALE
@@ -10,7 +13,11 @@ data/
 
 src/masking/
 src/ref/
+src/test/test-env/
+src/image/
+
 playground/
+results/
 
 src/my_playground_test*.py
 
