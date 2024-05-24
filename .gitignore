@@ -7,14 +7,12 @@ export/
 tool/
 test/
 
-data/*
-!data/Palm/PalmAll/
-!data/Palm/FEMALE
-!data/Palm/After1
+data/
+#!data/Palm/PalmAll
 
 src/masking/
+src/masking_crack/Palm
 ref/
-src/test/test-env/
 
 playground/
 results/
