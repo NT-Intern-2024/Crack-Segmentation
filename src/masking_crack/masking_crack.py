@@ -6,6 +6,8 @@ import os
 import numpy as np
 import sys
 
+source_path = "../../data/Palm/PalmAll"
+
 # Initialize the main window
 win = Tk()
 win.geometry("600x600")
