@@ -2,18 +2,28 @@
 runs/
 .vscode/
 .idea/
-output/
 export/
 tool/
 test/
 
-data/
-!data/Palm/FEMALE
-!data/Palm/After1
+# nested ignore
+data/*
+!data/Palm
+data/Palm/*
+!data/Palm/PalmAll
+
+output
+!output/dataset
+output/dataset/*
+!output/dataset/input
+!output/dataset/output
+output/dataset/input/*
+output/dataset/output/*
 
 src/masking/
+src/masking_crack/Palm
 ref/
-src/test/test-env/
+
 
 playground/
 results/
