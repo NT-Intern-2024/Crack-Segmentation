@@ -1,0 +1,17 @@
+# Pre-Processing
+pre_processing:
+  path_to_mask: "/pre_processing/masking"
+
+# Dataset info
+dataset:
+  path: "./data/Palm/PalmAll"
+  path_to_train: "/train"
+  path_to_validated: "/val"
+  path_to_test: "/test"
+
+# Training
+train:
+  lr: "1e-4"
+  epochs: "10"
+  path_to_saved_model: "./checkpoints/my_model.model"
+
