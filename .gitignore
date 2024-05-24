@@ -1,15 +1,25 @@
 # Custom
 runs/
 .vscode/
-#output/
+.idea/
+output/
 export/
+tool/
+test/
 
 data/
 !data/Palm/FEMALE
 !data/Palm/After1
 
 src/masking/
+ref/
+src/test/test-env/
+
 playground/
+results/
+
+src/my_playground_test*.py
+path.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
