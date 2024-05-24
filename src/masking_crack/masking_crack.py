@@ -42,8 +42,8 @@ def change_filter(img: cv2.typing.MatLike):
     return img
 
 
-# Edit the image path as necessary
-images_path = 'Palm/Source'
+# TODO: Edit the image path as necessary
+images_path = '../../data/Palm/PalmAll'
 assert os.path.exists(images_path), f"Path not found: {images_path}"
 myList = os.listdir(images_path)
 ListSourceImage = sorted([img for img in myList if img.endswith(('.JPG', '.jpg', '.png'))])
