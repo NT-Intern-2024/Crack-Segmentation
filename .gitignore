@@ -7,8 +7,8 @@ export/
 tool/
 test/
 
-data/
-!data/Palm/PalmAll
+data/*
+!data/Palm/PalmAll/
 !data/Palm/FEMALE
 !data/Palm/After1
 
