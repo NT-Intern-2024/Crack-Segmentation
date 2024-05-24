@@ -1,9 +1,8 @@
 import cv2
 import matplotlib.pyplot as plt
-import numpy as np
 
-from ..utility.file_utils import *
-from ..utility.constants import *
+from utility.constants import *
+from utility.file_utils import *
 
 
 def load_image(image_path: str):

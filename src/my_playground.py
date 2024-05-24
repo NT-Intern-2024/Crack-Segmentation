@@ -1,12 +1,7 @@
-import numpy as np
-import cv2
-import my_masking
-import image_masking_builder as imb
-from my_utils import *
-import contour_plotter as cp
-
-# image_path = my_utils.path_best
-# image_path = my_utils.path
+from utility.project import *
+from image.image_utils import *
+from image.masking import *
+from archive.masking_builder import *
 
 image_path = "../data/Palm/After1/IMG_0016.JPG"
 # image_path = "..\\data\\Palm\\After1\\IMG_0016.JPG"
@@ -14,17 +9,8 @@ image_path = "../data/Palm/After1/IMG_0016.JPG"
 # image_path = "../output/IMG_0001.JPG"
 
 # Old using
-change_to_project_path()
-
-image1 = my_masking.load_image(image_path)
-image1_process1 = my_masking.equalize_histogram(image=image1)
-image1_process2 = my_masking.adaptive_mean(image=image1_process1)
-
-image2 = my_masking.load_image(image_path)
-image2_process1 = my_masking.adaptive_mean(image=image2)
-image2_process2 = my_masking.equalize_histogram(image=image2_process1)
-
-image8 = imb.ImageMaskingBuilder(image_path)
+change_to_project_path(__file__)
+image8 = MaskingBuilder(image_path)
 
 # Run
 # image8.show("Original")
@@ -62,7 +48,6 @@ def add_data(image_data: list[np.ndarray]):
             "Processed 2": image_data[2],
         }
     )
-
 
 # add_data(
 #     [

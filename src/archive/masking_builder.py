@@ -1,7 +1,8 @@
-from my_utils import *
+from utility.file_utils import *
+from image.image_utils import *
 
 
-class ImageMaskingBuilder:
+class MaskingBuilder:
     def __init__(self, image_path: str):
         self.kernel_size = None
         self.image_path: str = image_path
@@ -10,7 +11,6 @@ class ImageMaskingBuilder:
 
     # TODO: draft
     def __load_image(self, flags: int = cv2.IMREAD_UNCHANGED) -> cv2.typing.MatLike:
-        change_to_project_path()
         image = cv2.imread(self.image_path, flags)
         check_loaded_image(image)
         print(f"type: {type(image)}")

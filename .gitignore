@@ -12,13 +12,14 @@ data/
 !data/Palm/After1
 
 src/masking/
-src/ref/
+ref/
 src/test/test-env/
 
 playground/
 results/
 
 src/my_playground_test*.py
+path.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

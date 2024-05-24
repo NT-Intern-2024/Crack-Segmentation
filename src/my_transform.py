@@ -1,9 +1,10 @@
-from utility.project import change_to_project_path
-from utility.config import Config
-from image.transform import *
-from image.image_processor import *
 from image.hand_detector import *
 from image.image import *
+from utility.config import Config
+from utility.constants import CONFIG_FILE
+from utility.file_utils import *
+from utility.project import change_to_project_path
+
 
 def main():
     change_to_project_path(__file__)
@@ -30,8 +31,7 @@ def main():
     # warp(image)
     image = Image(image_path)
     image.show()
-    image.show()
-    image.show()
+
 
 if __name__ == "__main__":
     main()
