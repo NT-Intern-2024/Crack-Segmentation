@@ -6,9 +6,9 @@ import os
 import numpy as np
 import sys
 
-images_path = "data/Palm/PalmAll"
+images_path = "../../data/Palm/PalmAll"
 
-mask_output_path = "output/dataset/"
+mask_output_path = "../../output/dataset/"
 
 # Initialize the main window
 win = Tk()
@@ -264,6 +264,20 @@ win.bind('<Control-y>', lambda event: redo())
 win.bind('<Command-z>', lambda event: undo())  # For Mac
 win.bind('<Command-y>', lambda event: redo())  # For Mac
 
+
+def change_to_project_path(main_script_path: str):
+    """
+    Change the current working directory to the directory where the script is located.
+    """
+    script_path = os.path.dirname(os.path.abspath(main_script_path))
+    current_path = os.getcwd()
+
+    if current_path != script_path:
+        os.chdir(script_path)
+
+
 if __name__ == "__main__":
+    print(f"current path: {os.getcwd()}")
+    change_to_project_path(os.getcwd())
     switch(0)  # Load the first image initially
     win.mainloop()
