@@ -5,6 +5,7 @@ runs/
 export/
 tool/
 test/
+.DS_Store
 
 # nested ignore
 data/*

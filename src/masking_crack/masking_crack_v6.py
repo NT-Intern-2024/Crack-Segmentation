@@ -274,10 +274,11 @@ def change_to_project_path(main_script_path: str):
 
     if current_path != script_path:
         os.chdir(script_path)
+        print(f"change current path to: {os.getcwd()}")
 
 
 if __name__ == "__main__":
     print(f"current path: {os.getcwd()}")
-    change_to_project_path(os.getcwd())
+    # change_to_project_path(os.getcwd())
     switch(0)  # Load the first image initially
     win.mainloop()
