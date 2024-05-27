@@ -22,7 +22,6 @@ ref/
 
 
 playground/
-results/
 
 src/my_playground_test*.py
 path.log
