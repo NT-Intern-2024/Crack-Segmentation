@@ -248,21 +248,25 @@ Radiobutton(win, text="Thick = 2", variable=Radivar, value=2, command=sel).place
 Radiobutton(win, text="Thick = 3", variable=Radivar, value=3, command=sel).place(x=520, y=toolbar_pos_y - 50)
 
 # Create a listbox with a scrollbar for image selection
-# scrollbar = Scrollbar(win)
-# scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+scrollbar = Scrollbar(win)
+scrollbar.pack(side=tk.LEFT, fill=tk.Y)
 
-# image_listbox = Listbox(win, yscrollcommand=scrollbar.set, selectmode=tk.SINGLE, height=toolbar_pos_y - 100)
-# for img_name in ListSourceImage:
-#     image_listbox.insert(tk.END, img_name)
-# image_listbox.pack(side=tk.LEFT, fill=tk.Y)
-# image_listbox.bind("<<ListboxSelect>>", on_image_select)
+image_listbox = Listbox(win, yscrollcommand=scrollbar.set, selectmode=tk.SINGLE, height=toolbar_pos_y - 100)
+for img_name in ListSourceImage:
+    image_listbox.insert(tk.END, img_name)
+image_listbox.pack(side=tk.LEFT, fill=tk.Y)
+image_listbox.bind("<<ListboxSelect>>", on_image_select)
 
-# scrollbar.config(command=image_listbox.yview)
+scrollbar.config(command=image_listbox.yview)
 
 win.bind('<Control-z>', lambda event: undo())
 win.bind('<Control-y>', lambda event: redo())
 win.bind('<Command-z>', lambda event: undo())  # For Mac
 win.bind('<Command-y>', lambda event: redo())  # For Mac
+
+# TODO: Add arrow shortcut
+win.bind('<Left>', lambda event: count_down())
+win.bind('<Right>', lambda event: count_up())
 
 
 def change_to_project_path(main_script_path: str):

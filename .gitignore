@@ -13,6 +13,8 @@ data/*
 data/Palm/*
 !data/Palm/PalmAll
 
+output/dataset/input
+output/dataset/output
 
 src/masking/
 src/masking_crack/Palm
