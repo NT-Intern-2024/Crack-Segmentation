@@ -7,12 +7,20 @@ tool
 test
 .DS_Store
 
-# nested ignore
+# Ignore all files in the data directory
 data/*
-!data/Palm
+
+# Except for the Palm directory and its contents
+!data/Palm/
+
+# Except for specific subdirectories and their contents under Palm
+!data/Palm/PalmAll/
+!data/Palm/PalmAll-Bright60-300-400/
+
+# Exclude all other files in the Palm directory (if any)
 data/Palm/*
-!data/Palm/PalmAll
-!data/Palm/PalmAll-Bright60-300-400
+!data/Palm/PalmAll/
+!data/Palm/PalmAll-Bright60-300-400/
 
 output/dataset/input
 output/dataset/output
@@ -20,7 +28,6 @@ output/dataset/output
 src/masking/
 src/masking_crack/Palm
 ref/
-
 
 playground/
 

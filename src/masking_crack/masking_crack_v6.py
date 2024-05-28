@@ -1,5 +1,15 @@
 import cv2
-from tkinter import Label, Tk, Button, ttk, Radiobutton, IntVar, Listbox, Scrollbar, messagebox
+from tkinter import (
+    Label,
+    Tk,
+    Button,
+    ttk,
+    Radiobutton,
+    IntVar,
+    Listbox,
+    Scrollbar,
+    messagebox,
+)
 import tkinter as tk
 from PIL import ImageTk, Image
 import os
@@ -48,7 +58,9 @@ def change_filter(img: cv2.typing.MatLike):
 
 assert os.path.exists(images_path), f"Path not found: {images_path}"
 myList = os.listdir(images_path)
-ListSourceImage = sorted([img for img in myList if img.endswith(('.JPG', '.jpg', '.png'))])
+ListSourceImage = sorted(
+    [img for img in myList if img.endswith((".JPG", ".jpg", ".png"))]
+)
 
 current_image: cv2.typing.MatLike = None
 canvas_image: cv2.typing.MatLike = None
@@ -56,7 +68,9 @@ drawing_lines = None
 current_filename: str = ""
 
 
-def to_display(img: cv2.typing.MatLike, box_label: Label, x: int, y: int, w: int, h: int):
+def to_display(
+    img: cv2.typing.MatLike, box_label: Label, x: int, y: int, w: int, h: int
+):
     global current_image, canvas_image, drawing_lines, current_filename, undo_stack, redo_stack
     img = cv2.resize(img, (w, h))
     current_image = img
@@ -69,7 +83,7 @@ def to_display(img: cv2.typing.MatLike, box_label: Label, x: int, y: int, w: int
     drawing_lines = np.zeros_like(canvas_image)
     current_filename = ListSourceImage[count]
     label_middle = tk.Label(win, text=current_filename)
-    label_middle.place(relx=0.5, rely=0.95, anchor='center')
+    label_middle.place(relx=0.5, rely=0.95, anchor="center")
     undo_stack.clear()  # Clear the undo stack on image change
     redo_stack.clear()  # Clear the redo stack on image change
     win.mainloop()
@@ -142,7 +156,13 @@ def draw(event):
     if is_drawing and start_x is not None and start_y is not None:
         undo_stack.append(drawing_lines.copy())
         redo_stack.clear()  # Clear the redo stack whenever a new drawing is made
-        cv2.line(drawing_lines, (start_x, start_y), (event.x, event.y), (255, 255, 255), int(GRadivar))
+        cv2.line(
+            drawing_lines,
+            (start_x, start_y),
+            (event.x, event.y),
+            (255, 255, 255),
+            int(GRadivar),
+        )
         start_x, start_y = event.x, event.y
         combined_image = cv2.addWeighted(canvas_image, 0.9, drawing_lines, 1, 0)
         img = Image.fromarray(combined_image)
@@ -224,7 +244,7 @@ def redo():
         print("Redo stack is empty.")
 
 
-button_pos = {'x': 360, 'y': 500}
+button_pos = {"x": 360, "y": 500}
 padding_x = 50
 
 label = Label(win, bg="black")
@@ -233,25 +253,41 @@ label.bind("<ButtonPress-1>", start_drawing)
 label.bind("<B1-Motion>", draw)
 label.bind("<ButtonRelease-1>", stop_drawing)
 
-Button(win, text="◀", bg="gray", command=count_down).place(x=200, y=toolbar_pos_y, width=40)
-Button(win, text="▶", bg="gray", command=count_up).place(x=260, y=toolbar_pos_y, width=40)
-Button(win, text="Erase", bg="gray", command=erase).place(x=320, y=toolbar_pos_y, width=40)
+Button(win, text="◀", bg="gray", command=count_down).place(
+    x=200, y=toolbar_pos_y, width=40
+)
+Button(win, text="▶", bg="gray", command=count_up).place(
+    x=260, y=toolbar_pos_y, width=40
+)
+Button(win, text="Erase", bg="gray", command=erase).place(
+    x=320, y=toolbar_pos_y, width=40
+)
 draw_button = Button(win, text="Draw", bg="gray", command=toggle_drawing)
-draw_button.place(x=button_pos['x'] + padding_x, y=toolbar_pos_y, width=40)
-Button(win, text="Save", bg="gray", command=save_drawing).place(x=button_pos['x'] + 2 * padding_x, y=toolbar_pos_y,
-                                                                width=40)
-Button(win, text="Exit", bg="gray", command=close_drawing).place(x=button_pos['x'] + 3 * padding_x, y=toolbar_pos_y,
-                                                                 width=40)
+draw_button.place(x=button_pos["x"] + padding_x, y=toolbar_pos_y, width=40)
+Button(win, text="Save", bg="gray", command=save_drawing).place(
+    x=button_pos["x"] + 2 * padding_x, y=toolbar_pos_y, width=40
+)
+Button(win, text="Exit", bg="gray", command=close_drawing).place(
+    x=button_pos["x"] + 3 * padding_x, y=toolbar_pos_y, width=40
+)
 
-Radiobutton(win, text="Thick = 1", variable=Radivar, value=1, command=sel).place(x=360, y=toolbar_pos_y - 50)
-Radiobutton(win, text="Thick = 2", variable=Radivar, value=2, command=sel).place(x=440, y=toolbar_pos_y - 50)
-Radiobutton(win, text="Thick = 3", variable=Radivar, value=3, command=sel).place(x=520, y=toolbar_pos_y - 50)
+Radiobutton(win, text="Thick = 1", variable=Radivar, value=1, command=sel).place(
+    x=360, y=toolbar_pos_y - 50
+)
+Radiobutton(win, text="Thick = 2", variable=Radivar, value=2, command=sel).place(
+    x=440, y=toolbar_pos_y - 50
+)
+Radiobutton(win, text="Thick = 3", variable=Radivar, value=3, command=sel).place(
+    x=520, y=toolbar_pos_y - 50
+)
 
 # Create a listbox with a scrollbar for image selection
 scrollbar = Scrollbar(win)
 scrollbar.pack(side=tk.LEFT, fill=tk.Y)
 
-image_listbox = Listbox(win, yscrollcommand=scrollbar.set, selectmode=tk.SINGLE, height=toolbar_pos_y - 100)
+image_listbox = Listbox(
+    win, yscrollcommand=scrollbar.set, selectmode=tk.SINGLE, height=toolbar_pos_y - 100
+)
 for img_name in ListSourceImage:
     image_listbox.insert(tk.END, img_name)
 image_listbox.pack(side=tk.LEFT, fill=tk.Y)
@@ -259,14 +295,14 @@ image_listbox.bind("<<ListboxSelect>>", on_image_select)
 
 scrollbar.config(command=image_listbox.yview)
 
-win.bind('<Control-z>', lambda event: undo())
-win.bind('<Control-y>', lambda event: redo())
-win.bind('<Command-z>', lambda event: undo())  # For Mac
-win.bind('<Command-y>', lambda event: redo())  # For Mac
+win.bind("<Control-z>", lambda event: undo())
+win.bind("<Control-y>", lambda event: redo())
+win.bind("<Command-z>", lambda event: undo())  # For Mac
+win.bind("<Command-y>", lambda event: redo())  # For Mac
 
 # TODO: Add arrow shortcut
-win.bind('<Left>', lambda event: count_down())
-win.bind('<Right>', lambda event: count_up())
+win.bind("<Left>", lambda event: count_down())
+win.bind("<Right>", lambda event: count_up())
 
 
 def change_to_project_path(main_script_path: str):
