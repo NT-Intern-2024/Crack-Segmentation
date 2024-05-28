@@ -12,6 +12,7 @@ data/*
 !data/Palm
 data/Palm/*
 !data/Palm/PalmAll
+!data/Palm/PalmAll-Bright60-300-400
 
 output/dataset/input
 output/dataset/output
