@@ -1,10 +1,10 @@
 # Custom
-runs/
-.vscode/
-.idea/
-export/
-tool/
-test/
+runs
+.vscode
+.idea
+export
+tool
+test
 .DS_Store
 
 # nested ignore
