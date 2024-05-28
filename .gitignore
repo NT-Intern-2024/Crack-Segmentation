@@ -12,7 +12,6 @@ data/*
 !data/Palm
 data/Palm/*
 !data/Palm/PalmAll
-!data/Palm/PalmAll-Bright
 
 output/dataset/input
 output/dataset/output
