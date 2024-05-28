@@ -6,9 +6,9 @@ import os
 import numpy as np
 import sys
 
-images_path = "../../data/Palm/PalmAll"
+images_path = "data/Palm/PalmAll"
 
-mask_output_path = "../../output/dataset/"
+mask_output_path = "output/dataset/"
 
 # Initialize the main window
 win = Tk()
