@@ -8,9 +8,9 @@ test
 .DS_Store
 
 data/*
-#!data/Palm/
-#data/Palm/*
-#!data/Palm/PalmAll/*
+!data/Palm/
+data/Palm/*
+!data/Palm/PalmAll/*
 
 output/
 
