@@ -5,3 +5,6 @@ data/**/*.png filter=lfs diff=lfs merge=lfs -text
 data/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 .jpg filter=lfs diff=lfs merge=lfs -text
 .png filter=lfs diff=lfs merge=lfs -text
+
+palmistry-results/**/*.jpg ilter=lfs diff=lfs merge=lfs -text
+palmistry-results/**/*.png ilter=lfs diff=lfs merge=lfs -text
