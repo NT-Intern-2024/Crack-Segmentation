@@ -10,7 +10,7 @@ test
 data/*
 !data/Palm/
 data/Palm/*
-!data/Palm/PalmAll/*
+!data/Palm/PalmAll/
 
 output/*
 !output/dataset/
