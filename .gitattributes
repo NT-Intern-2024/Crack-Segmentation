@@ -1,10 +1,1 @@
-sample/*.jpg filter=lfs diff=lfs merge=lfs -text
-output/**/*.jpg filter=lfs diff=lfs merge=lfs -text
-output/**/*.png filter=lfs diff=lfs merge=lfs -text
-data/**/*.png filter=lfs diff=lfs merge=lfs -text
-data/**/*.jpg filter=lfs diff=lfs merge=lfs -text
-.jpg filter=lfs diff=lfs merge=lfs -text
-.png filter=lfs diff=lfs merge=lfs -text
 
-results/**/*.jpg ilter=lfs diff=lfs merge=lfs -text
-results/**/*.png ilter=lfs diff=lfs merge=lfs -text

@@ -3,12 +3,6 @@ import logging
 import cv2
 import matplotlib.pyplot as plt
 
-
-def set_logger_config():
-    logging_format = "%(asctime)s - %(message)s"
-    logging.basicConfig(filename="all-process.log", format=logging_format, level=logging.INFO)
-
-
 def change_to_project_path(main_script_path: str):
     """
     Change the current working directory to the directory where the script is located.
@@ -82,7 +76,3 @@ def save_result_original(image_path: str, mask_image: cv2.typing.MatLike, mask_p
     axs[2].imshow(mskp*255, cmap= 'gray')
 
     plt.savefig(name + '.png')
-
-
-logger = logging.getLogger(__name__)
-set_logger_config()

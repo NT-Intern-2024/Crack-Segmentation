@@ -7,8 +7,7 @@ from detection import *
 from classification import *
 from measurement import *
 
-from my_utils import *
-
+from utility.logger import *
 
 def main(input):
     # TODO: edit input format
