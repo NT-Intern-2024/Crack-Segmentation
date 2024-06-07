@@ -1,4 +1,6 @@
 from utility.logger import *
+from image.image_utils import *
+
 import numpy as np
 import os
 import cv2
@@ -165,6 +167,8 @@ def group(img):
 
     # (1)-1 find all nodes
     count = np.zeros(img.shape)
+    image_size = list(img.shape[:2])
+
     nodes = []
     print(f"------ group():----------")
     for j in range(1, img.shape[0] - 1):
@@ -175,7 +179,7 @@ def group(img):
             if count[j, i] == 1 or count[j, i] >= 3:
                 nodes.append((j, i))
 
-    print_matrix(count, "count: (After check nonzero)")
+    # print_matrix(count, "count: (After check nonzero)")
 
     # sort nodes to traverse from upper-left to lower-right
     logger_classify.info(f"\t nodes \t: {nodes}")
@@ -195,6 +199,8 @@ def group(img):
 
     # MyDebug
     # print(f"------------------ new not visited -------------")
+    n_node = 1
+    
     for node in nodes:
         y, x = node
         print(f"node - y:{y}, x:{x}")
@@ -204,33 +210,43 @@ def group(img):
             not_visited[y - 1 : y + 2, x - 1 : x + 2],
         )
 
-        print_matrix(not_visited, "nv: 0")
-        print_matrix(around, "around: ")
+        # print_matrix(not_visited, "nv: 0")
+        # print_matrix(around, "around: ")
 
         next_pos = np.transpose(np.nonzero(around))
         if next_pos.shape[0] == 0:
+            # n_node += 1
             continue
 
         print(np.nonzero(around))
-        print_matrix(next_pos, "next_pos: ")
+        # print_matrix(next_pos, "next_pos: ")
 
         for dy, dx in next_pos:
-            print(f"next_pos({dx}, {dy}) - #count {around[dy, dx]}")
+            # print(f"next_pos({dx}, {dy}) - #count {around[dy, dx]}")
             y, x = node
-            print_matrix(count[y - 1 : y + 2, x - 1 : x + 2], 'check count again')
+            # print_matrix(count[y - 1 : y + 2, x - 1 : x + 2], 'check count again')
             next_y = y + dy - 1
             next_x = x + dx - 1
             if dx == 0 or (dy == 0 and dx == 1):
                 dy, dx = 2 - dy, 2 - dx
             temp_line = [[y, x, 0, 0], [next_y, next_x, dy - 1, dx - 1]]
+
+            # print(f"temp_line")
+            # print(temp_line, end="\n\n")
+
             if count[next_y, next_x] == 1 or count[next_y, next_x] >= 3:
                 not_visited[next_y, next_x] = 1
                 # MyDebug
-                print_matrix(not_visited, "nv: (1st if)")
+                # print_matrix(not_visited, "nv: (1st if)")
                 graph[tuple(temp_line[0][:2])][tuple(temp_line[-1][:2])] = temp_line
                 temp_line_rev = list(reversed(temp_line))
                 graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
+
+                export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
+                # n_node += 1
+
                 print("---------------- new (dy, dx) - next_pos --------------------")
+
                 continue
         
             while True:
@@ -242,8 +258,8 @@ def group(img):
                 )
 
                 # MyDebug
-                print_matrix(not_visited, "nv: (While loop)")
-                print_matrix(around, "around: (While loop)")
+                # print_matrix(not_visited, "nv: (While loop)")
+                # print_matrix(around, "around: (While loop)")
 
                 next_pos = np.transpose(np.nonzero(around))
                 if next_pos.shape[0] == 0:
@@ -273,8 +289,14 @@ def group(img):
                     # print(f"end loop => count:{count[next_y, next_x]}")
                     print("--------------- End loop: count != 2 --------------")
                     break
+            
+            print(f"image size ={image_size}")
+            # print(f"temp line - len:{len(temp_line)} => {temp_line}")
+            export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
+            n_node += 1
             print("--------------- End for loop: change new next_pos --------------")
             
+        # n_node += 1
 
         not_visited[node[0], node[1]] = 1
 
@@ -558,7 +580,6 @@ def classify(path_to_palmline_image):
     skeleton = skeletonize(gray_img)
     skel_img = skeleton.astype(np.uint8) * 255
 
-    print(f"image size: {skel_img.shape}")
     cv2.namedWindow("Skel img", cv2.WINDOW_NORMAL) 
     cv2.resizeWindow("Skel img", 400, 400) 
     cv2.imshow("Skel img", skel_img)
@@ -567,19 +588,24 @@ def classify(path_to_palmline_image):
     # skel_img = cv2.cvtColor(skeletonize(palmline_img), cv2.COLOR_BGR2GRAY)
 
     # cv2.imwrite('results/skel.jpg',skel_img)
+    cv2.imwrite('output/process-lines/skel.jpg',skel_img)
+
 
     lines = group(skel_img)  # get candidate lines
     print(f"#group lines: {len(lines)}")
-    print(lines)
+    # print(lines)
     logger.info(f"\t number of lines (group by backtrack): {len(lines)}")
+
+    image_size = list(gray_img.shape[:2])
+    export_image_from_lines(image_size[0], image_size[1], lines, "line-after-group")
 
     lines = classify_lines(
         centers, lines, palmline_img.shape[0], palmline_img.shape[1]
     )  # choose 3 lines from candidates
     # colored_img = color(skel_img, classified_lines) # color 3 lines (RGB)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+
     return lines
 
 def print_matrix(np_array: np, info: str = ""):
@@ -589,9 +615,57 @@ def print_matrix(np_array: np, info: str = ""):
 
 print(f"Current path: {os.getcwd()}")
 
+def export_image_from_lines(width: int, height: int, lines, output_pattern_name: str = "line"):
+    line_count = 1
 
+    output_path = "output/process-lines"
+    check_path_compatibility(output_path)
+    for line in lines:
+        # print(f"line {line}")
+        binary_image = np.zeros((height, width), dtype=np.uint8)
+        for point in line:
+            binary_image[point[0], point[1]] = 255
+        image_path = f"{output_path}/{output_pattern_name}-{line_count}.png"
+        print(f"save line: {line_count}")
+        cv2.imshow(f"image {line_count}", binary_image)
+        cv2.imwrite(image_path, binary_image)
+
+        line_count += 1
+    
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+def export_image_from_line(width: int, height: int, line, output_pattern_name: str = "line"):
+    output_path = "output/process-lines"
+    check_path_compatibility(output_path)
+
+    binary_image = np.zeros((height, width), dtype=np.uint8)
+    for point in line:
+        binary_image[point[0], point[1]] = 255
+    image_path = f"{output_path}/{output_pattern_name}.png"
+    # cv2.imshow(f"image", binary_image)
+    cv2.imwrite(image_path, binary_image)
+
+    print(f"save image {image_path}")
+    
+
+def get_coordinate(lines: list[list[int]]):
+    pass
+
+mask_path = "./sample/line-cross-100x100.png"
+# mask_path = "./sample/line-cross-50x50.png"
+# mask_path = "./sample/simple-line-cross-15x15.png"
 # mask_path = "./sample/simple-line-10x10.png"
-mask_path = "./sample/simple-line-10x10.png"
+# mask_path = "./sample/line-100x100.png"
+
+
+image_mask = cv2.imread(mask_path)
+check_loaded_image(image_mask)
+image_size = list(image_mask.shape[:2])
+print(f"image size: {image_size}")
+
 
 lines = classify(mask_path)
+export_image_from_lines(image_size[0], image_size[1], lines, "line-after-classify")
+
 print(f"#lines: {len(lines)}")

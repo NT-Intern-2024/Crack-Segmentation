@@ -36,3 +36,9 @@ def check_path_compatibility(folder_path: str):
 
 def join_path(parent_path: str, child_path: str):
     return os.path.join(parent_path, child_path)
+
+
+def get_filename_without_extension(file_path: str) -> str:
+    base_name = os.path.basename(file_path)
+    file_name, _ = os.path.splitext(base_name)
+    return file_name
