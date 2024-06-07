@@ -4,12 +4,12 @@ runs
 .idea
 export
 tool
-test
 .DS_Store
 
 data/*
 !data/Palm/
 data/Palm/*
+!data/STWPalmCrack/
 
 output/*
 !output/dataset/
