@@ -566,9 +566,9 @@ def classify(path_to_palmline_image):
 
     palmline_img = cv2.imread(path_to_palmline_image)
 
-    cv2.namedWindow("Palmline img", cv2.WINDOW_NORMAL) 
-    cv2.resizeWindow("Palmline img", 400, 400) 
-    cv2.imshow("Palmline img", palmline_img)
+    # cv2.namedWindow("Palmline img", cv2.WINDOW_NORMAL) 
+    # cv2.resizeWindow("Palmline img", 400, 400) 
+    # cv2.imshow("Palmline img", palmline_img)
 
     kernel = np.ones((3, 3), np.uint8)
     # dilated = cv2.dilate(palmline_img, kernel, iterations=3)
@@ -580,9 +580,9 @@ def classify(path_to_palmline_image):
     skeleton = skeletonize(gray_img)
     skel_img = skeleton.astype(np.uint8) * 255
 
-    cv2.namedWindow("Skel img", cv2.WINDOW_NORMAL) 
-    cv2.resizeWindow("Skel img", 400, 400) 
-    cv2.imshow("Skel img", skel_img)
+    # cv2.namedWindow("Skel img", cv2.WINDOW_NORMAL) 
+    # cv2.resizeWindow("Skel img", 400, 400) 
+    # cv2.imshow("Skel img", skel_img)
 
     # TODO: comment code
     # skel_img = cv2.cvtColor(skeletonize(palmline_img), cv2.COLOR_BGR2GRAY)
@@ -627,13 +627,13 @@ def export_image_from_lines(width: int, height: int, lines, output_pattern_name:
             binary_image[point[0], point[1]] = 255
         image_path = f"{output_path}/{output_pattern_name}-{line_count}.png"
         print(f"save line: {line_count}")
-        cv2.imshow(f"image {line_count}", binary_image)
+        # cv2.imshow(f"image {line_count}", binary_image)
         cv2.imwrite(image_path, binary_image)
 
         line_count += 1
     
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 def export_image_from_line(width: int, height: int, line, output_pattern_name: str = "line"):
     output_path = "output/process-lines"
@@ -643,7 +643,8 @@ def export_image_from_line(width: int, height: int, line, output_pattern_name: s
     for point in line:
         binary_image[point[0], point[1]] = 255
     image_path = f"{output_path}/{output_pattern_name}.png"
-    # cv2.imshow(f"image", binary_image)
+    short_name = get_filename_without_extension(image_path)
+    # cv2.imshow(short_name, binary_image)
     cv2.imwrite(image_path, binary_image)
 
     print(f"save image {image_path}")
@@ -652,7 +653,8 @@ def export_image_from_line(width: int, height: int, line, output_pattern_name: s
 def get_coordinate(lines: list[list[int]]):
     pass
 
-mask_path = "./sample/line-cross-100x100.png"
+# mask_path = "./sample/line-cross-100x100.png"
+mask_path = "./sample/line-complex-100x100.png"
 # mask_path = "./sample/line-cross-50x50.png"
 # mask_path = "./sample/simple-line-cross-15x15.png"
 # mask_path = "./sample/simple-line-10x10.png"
