@@ -140,8 +140,12 @@ def load_data(num_data):
 # finished_node : visited nodes at least once
 # node : current node
 def backtrack(lines_node, temp, graph, visited_node, finished_node, node):
+    logger_backtrack.info(f"\t\t Enter {backtrack.__name__}")
     end_pt = True
     for next_node in graph[node].keys():
+        logger_backtrack.info(f"\t\t\t visted[]: \t{visited_node}")
+        logger_backtrack.info(f"\t\t\t finished[]: \t{finished_node}")
+
         if not visited_node[next_node]:
             end_pt = False
             temp.append(next_node)
@@ -198,8 +202,6 @@ def group(img):
 
     not_visited = np.ones(img.shape)
 
-    # MyDebug
-    # print(f"------------------ new not visited -------------")
     n_node = 1
     
     for node in nodes:
@@ -245,9 +247,6 @@ def group(img):
 
                 export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
                 # n_node += 1
-
-                print("---------------- new (dy, dx) - next_pos --------------------")
-
                 continue
         
             while True:
@@ -264,7 +263,6 @@ def group(img):
 
                 next_pos = np.transpose(np.nonzero(around))
                 if next_pos.shape[0] == 0:
-                    print("--------------- End loop: shape=0 --------------")
                     break
 
                 # update line
@@ -285,20 +283,12 @@ def group(img):
                         tuple(temp_line[0][:2])
                     ] = temp_line_rev
                     not_visited[next_y, next_x] = 1
-
-                    # MyDebug
-                    # print(f"end loop => count:{count[next_y, next_x]}")
-                    print("--------------- End loop: count != 2 --------------")
                     break
             
             print(f"image size ={image_size}")
             # print(f"temp line - len:{len(temp_line)} => {temp_line}")
             export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
-            n_node += 1
-            print("--------------- End for loop: change new next_pos --------------")
-            
-        # n_node += 1
-
+            n_node += 1        
         not_visited[node[0], node[1]] = 1
 
     # (2) find all possible lines by graph backtracking
@@ -308,16 +298,31 @@ def group(img):
     for node in nodes:
         visited_node[node] = False
         finished_node[node] = False
+    
+    logger_backtrack.info("---------------- START LOGGING -------------------")
+    logger_backtrack.info(f"lines_node: {lines_node}")
+    logger_backtrack.info(f"graph: {graph}")
 
     for node in nodes:
+        logger_backtrack.info(f"Focus at node: {node}")
+        # logger_backtrack.info(f"\t [recall] #all node: {len(visited_node)}")
         if not finished_node[node]:
             temp = [node]
             visited_node[node] = True
             finished_node[node] = True
+            logger_backtrack.info(f"\t Go to {backtrack.__name__}()")
+            logger_backtrack.info(f"\t\t graph[node]: \t{graph[node]}")
             backtrack(lines_node, temp, graph, visited_node, finished_node, node)
+    logger_backtrack.info(f"lines_node: {lines_node}")
+    logger_backtrack.info(f"#lines_node: {len(lines_node)}")
+
+    # TODO: Check after backtrack
+    connected_node = get_path_points(graph, lines_node)
+    export_image_from_lines(image_size[1], image_size[0], connected_node, "after-backtrack")
 
     # (3) filter lines with length, direction criteria
     lines = []
+    lines_before_filter = []
     for line_node in lines_node:
         num_node = len(line_node)
         if num_node == 1:
@@ -339,10 +344,11 @@ def group(img):
             line.extend(graph[cur][nxt])
             prev, cur = cur, nxt
         # if the length is <10, discard it
+        lines_before_filter.append(line)
         if wrong or len(line) < 10:
             continue
         lines.append(line)
-
+    export_image_from_lines(image_size[0], image_size[1], lines_before_filter, "before-filter")
     return lines
 
 
@@ -566,12 +572,9 @@ def classify(path_to_palmline_image):
     centers = get_cluster_centers()
 
     palmline_img = cv2.imread(path_to_palmline_image)
+    show_image(palmline_img, "Palm Line")
 
-    # cv2.namedWindow("Palmline img", cv2.WINDOW_NORMAL) 
-    # cv2.resizeWindow("Palmline img", 400, 400) 
-    # cv2.imshow("Palmline img", palmline_img)
-
-    kernel = np.ones((3, 3), np.uint8)
+    # kernel = np.ones((3, 3), np.uint8)
     # dilated = cv2.dilate(palmline_img, kernel, iterations=3)
     # eroded = cv2.erode(dilated, kernel, iterations=3)
     
@@ -581,16 +584,12 @@ def classify(path_to_palmline_image):
     skeleton = skeletonize(gray_img)
     skel_img = skeleton.astype(np.uint8) * 255
 
-    # cv2.namedWindow("Skel img", cv2.WINDOW_NORMAL) 
-    # cv2.resizeWindow("Skel img", 400, 400) 
-    # cv2.imshow("Skel img", skel_img)
-
     # TODO: comment code
     # skel_img = cv2.cvtColor(skeletonize(palmline_img), cv2.COLOR_BGR2GRAY)
 
     # cv2.imwrite('results/skel.jpg',skel_img)
-    cv2.imwrite('output/process-lines/skel.jpg',skel_img)
-
+    # cv2.imwrite('output/process-lines/skel.png',skel_img)
+    export_image(skel_img, "skel2.png", "output/proccess-lines/")
 
     lines = group(skel_img)  # get candidate lines
     print(f"#group lines: {len(lines)}")
@@ -598,15 +597,13 @@ def classify(path_to_palmline_image):
     logger.info(f"\t number of lines (group by backtrack): {len(lines)}")
 
     image_size = list(gray_img.shape[:2])
-    export_image_from_lines(image_size[0], image_size[1], lines, "line-after-group")
+    export_image_from_lines(image_size[0], image_size[1], lines, "after-group")
 
     lines = classify_lines(
         centers, lines, palmline_img.shape[0], palmline_img.shape[1]
     )  # choose 3 lines from candidates
     # colored_img = color(skel_img, classified_lines) # color 3 lines (RGB)
-
-    # cv2.waitKey(0)
-
+    show_image(skel_img, "Skel")
     return lines
 
 def print_matrix(np_array: np, info: str = ""):
@@ -621,13 +618,13 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
 
     output_path = "output/process-lines"
     check_path_compatibility(output_path)
+    logger.info(f"Save image")
     for line in lines:
-        # print(f"line {line}")
         binary_image = np.zeros((height, width), dtype=np.uint8)
         for point in line:
             binary_image[point[0], point[1]] = 255
         image_path = f"{output_path}/{output_pattern_name}-{line_count}.png"
-        print(f"save line: {line_count}")
+        logger.info(f"\t save image: {image_path}")
         # cv2.imshow(f"image {line_count}", binary_image)
         cv2.imwrite(image_path, binary_image)
 
@@ -644,18 +641,26 @@ def export_image_from_line(width: int, height: int, line: list, output_pattern_n
     for point in line:
         binary_image[point[0], point[1]] = 255
     image_path = f"{output_path}/{output_pattern_name}.png"
-    short_name = get_filename_without_extension(image_path)
-    # cv2.imshow(short_name, binary_image)
     cv2.imwrite(image_path, binary_image)
 
-    print(f"save image {image_path}")
+    logger.info(f"Save image: {image_path}")
     
-
-def get_coordinate(lines: list[list[int]]):
-    pass
+def get_path_points(graph: dict, lines_node: list):
+    all_path_points = []
+    for line in lines_node:
+        if len(line) > 1:
+            path_points = []
+            for i in range(len(line)-1):
+                start_node = line[i]
+                end_node = line[i+1]
+                if start_node in graph and end_node in graph[start_node]:
+                    path_points.extend(graph[start_node][end_node])
+            all_path_points.append(path_points)
+    return all_path_points
 
 # mask_path = "./sample/line-cross-100x100.png"
 mask_path = "./sample/line-complex-100x100.png"
+
 # mask_path = "./sample/line-cross-50x50.png"
 # mask_path = "./sample/simple-line-cross-15x15.png"
 # mask_path = "./sample/simple-line-10x10.png"
@@ -666,9 +671,15 @@ image_mask = cv2.imread(mask_path)
 check_loaded_image(image_mask)
 image_size = list(image_mask.shape[:2])
 print(f"image size: {image_size}")
-
+image_name = get_filename_without_extension(mask_path)
 
 lines = classify(mask_path)
-export_image_from_lines(image_size[0], image_size[1], lines, "line-after-classify")
+export_image_from_lines(image_size[0], image_size[1], lines, "after-classify")
+# cv2.imshow("Skel", cv2.imread("./output/process-lines/skel.png"))
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+
+# skel_img = load_image("./output/process-lines/skel.png")
+# show_image(skel_img)
 
 print(f"#lines: {len(lines)}")

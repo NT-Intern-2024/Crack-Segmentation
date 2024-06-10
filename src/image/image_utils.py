@@ -22,7 +22,8 @@ def show_image(
         print(f"image not pass")
         return
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-    cv2.imshow(window_name, cv2.resize(image, (size_x, size_y)))
+    cv2.resizeWindow(window_name, size_x, size_y)
+    cv2.imshow(window_name, image)
     cv2.waitKey(0)
 
 
