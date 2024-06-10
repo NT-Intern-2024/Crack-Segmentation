@@ -180,6 +180,7 @@ def group(img):
                 nodes.append((j, i))
 
     # print_matrix(count, "count: (After check nonzero)")
+    export_image_from_line(image_size[0], image_size[1], nodes, "node")
 
     # sort nodes to traverse from upper-left to lower-right
     logger_classify.info(f"\t nodes \t: {nodes}")
@@ -615,7 +616,7 @@ def print_matrix(np_array: np, info: str = ""):
 
 print(f"Current path: {os.getcwd()}")
 
-def export_image_from_lines(width: int, height: int, lines, output_pattern_name: str = "line"):
+def export_image_from_lines(width: int, height: int, lines: list, output_pattern_name: str = "line"):
     line_count = 1
 
     output_path = "output/process-lines"
@@ -635,7 +636,7 @@ def export_image_from_lines(width: int, height: int, lines, output_pattern_name:
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def export_image_from_line(width: int, height: int, line, output_pattern_name: str = "line"):
+def export_image_from_line(width: int, height: int, line: list, output_pattern_name: str = "line"):
     output_path = "output/process-lines"
     check_path_compatibility(output_path)
 
