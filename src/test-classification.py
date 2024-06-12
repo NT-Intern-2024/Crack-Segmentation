@@ -32,9 +32,10 @@ import mediapipe as mp
 # then apply homography matrix to detected line image
 # input is the number 'idx' from image{idx}.jpg(.png)
 def rectify(idx):
+    # TODO: Good sample path (dataset)
     # img_path = "./PLSU/PLSU/"
     img_path = "./data/PLSU/" 
-
+    # img_path = "./data/MySample/"
     image = cv2.imread(img_path + "img/image" + str(idx) + ".jpg")
     print(f"load image: image{idx}")
     check_loaded_image(image)
@@ -99,9 +100,13 @@ def rectify(idx):
             image_mask, M, (image_width, image_height)
         )
         pil_img = Image.fromarray(rectified_image)
+        # TODO: Convert to binary image
+        pil_img = pil_img.point(lambda pixel: pixel > 128 and 255)
         rectified_image = np.asarray(
             pil_img.resize((1024, 1024), resample=Image.NEAREST)
         )
+        
+
         return rectified_image
 
 
@@ -264,10 +269,6 @@ def group(img):
                     not_visited[y - 1 : y + 2, x - 1 : x + 2],
                 )
 
-                # MyDebug
-                # print_matrix(not_visited, "nv: (While loop)")
-                # print_matrix(around, "around: (While loop)")
-
                 next_pos = np.transpose(np.nonzero(around))
                 if next_pos.shape[0] == 0:
                     break
@@ -292,8 +293,6 @@ def group(img):
                     not_visited[next_y, next_x] = 1
                     break
             
-            # print(f"image size ={image_size}")
-            # print(f"temp line - len:{len(temp_line)} => {temp_line}")
             # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
             n_node += 1        
         not_visited[node[0], node[1]] = 1
@@ -474,9 +473,10 @@ def get_cluster_centers(new_centers=False):
         my_output_path = f"./output/good_sample"
         check_path_compatibility(my_output_path)
         remove_all_files(my_output_path)
+        remove_all_files(f"./output/good_sample_skel")
 
         # for idx in good:
-        for idx in my_good:
+        for idx in my_good_3:
             rectified = rectify(idx)
 
             # TODO: Use cutsom output_path
@@ -498,28 +498,30 @@ def get_cluster_centers(new_centers=False):
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             skeleton = skeletonize(gray_img)
             skel_img = skeleton.astype(np.uint8) * 255
+            
+            image_name = get_filename_without_extension(img_path)
+            export_image(skel_img, f"{image_name}-skel.png", f"./output/good_sample_skel")
 
-            export_image(skel_img, f"image{idx}-skel.png", f"./output/good_sample_skel")
-             
-            lines = group(skel_img)
-            print("Start extract_feature")
+            # TODO: Warning use original group function
+            # lines = group(skel_img)
+
+            # MyDebug:
+            print(f"Enter group_original(): {image_name}")
+            lines = group_original(skel_img)
+            
             for line in lines:
                 # TODO: Add cutsom image size?
                 # feature = extract_feature(line, 1024, 1024)
                 feature = extract_feature(line, 1024, 1024)
                 data = np.vstack((data, feature))
-            print("End extract_feature")
 
         # k-means clustering (k=3)
         criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        print("Start kmeans")
         ret, label, centers = cv2.kmeans(
             # TODO: Change k=4
             # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-            data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-
+            data.astype(np.float32), n_cluster, None, criteria, 8, cv2.KMEANS_RANDOM_CENTERS
         )
-        print("End kmeans")
         # sort centers according to max_y
         centers = list(centers)
         centers.sort(key=lambda x: x[2])
@@ -616,6 +618,138 @@ def get_cluster_centers(new_centers=False):
     return centers
 
 
+def group_original(img):
+    # (1) build a graph
+
+    # (1)-1 find all nodes
+    count = np.zeros(img.shape)
+    nodes = []
+
+    for j in range(1, img.shape[0] - 1):
+        for i in range(1, img.shape[1] - 1):
+            if img[j, i] == 0:
+                continue
+            count[j, i] = np.count_nonzero(img[j - 1 : j + 2, i - 1 : i + 2]) - 1
+            if count[j, i] == 1 or count[j, i] >= 3:
+                nodes.append((j, i))
+
+    # sort nodes to traverse from upper-left to lower-right
+    logger_classify.info(f"\t nodes \t: {nodes}")
+    nodes.sort(key=lambda x: x[0] + x[1])
+    logger_classify.info(f"\t nodes (sorted): {nodes}")
+
+    # (1)-2 save all connections
+    graph = dict()
+    for node in nodes:
+        graph[node] = dict()
+
+    not_visited = np.ones(img.shape)
+
+    for node in nodes:
+        y, x = node
+        not_visited[y, x] = 0
+        around = np.multiply(
+            count[y - 1 : y + 2, x - 1 : x + 2],
+            not_visited[y - 1 : y + 2, x - 1 : x + 2],
+        )
+        next_pos = np.transpose(np.nonzero(around))
+        if next_pos.shape[0] == 0:
+            continue
+
+        for dy, dx in next_pos:
+            y, x = node
+            next_y = y + dy - 1
+            next_x = x + dx - 1
+            if dx == 0 or (dy == 0 and dx == 1):
+                dy, dx = 2 - dy, 2 - dx
+            temp_line = [[y, x, 0, 0], [next_y, next_x, dy - 1, dx - 1]]
+            if count[next_y, next_x] == 1 or count[next_y, next_x] >= 3:
+                not_visited[next_y, next_x] = 1
+                graph[tuple(temp_line[0][:2])][tuple(temp_line[-1][:2])] = temp_line
+                temp_line_rev = list(reversed(temp_line))
+                graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
+                continue
+        
+            while True:
+                y, x = temp_line[-1][:2]
+                not_visited[y, x] = 0
+                around = np.multiply(
+                    count[y - 1 : y + 2, x - 1 : x + 2],
+                    not_visited[y - 1 : y + 2, x - 1 : x + 2],
+                )
+                next_pos = np.transpose(np.nonzero(around))
+                if next_pos.shape[0] == 0:
+                    break
+
+                # update line
+                next_y = y + next_pos[0][0] - 1
+                next_x = x + next_pos[0][1] - 1
+                dy, dx = next_y - y, next_x - x
+                if dx == -1 or (dy == -1 and dx == 0):
+                    dy, dx = -dy, -dx
+                temp_line.append([next_y, next_x, dy, dx])
+                not_visited[next_y, next_x] = 0
+
+                # check end condition
+                if count[next_y, next_x] == 1 or count[next_y, next_x] >= 3:
+                    # if len(temp_line) > 10:
+                    graph[tuple(temp_line[0][:2])][tuple(temp_line[-1][:2])] = temp_line
+                    temp_line_rev = list(reversed(temp_line))
+                    graph[tuple(temp_line[-1][:2])][
+                        tuple(temp_line[0][:2])
+                    ] = temp_line_rev
+                    not_visited[next_y, next_x] = 1
+
+                    # MyDebug
+                    # print(f"end loop => count:{count[next_y, next_x]}")
+                    break
+
+        not_visited[node[0], node[1]] = 1
+
+    # (2) find all possible lines by graph backtracking
+    lines_node = []
+    visited_node = dict()
+    finished_node = dict()
+    for node in nodes:
+        visited_node[node] = False
+        finished_node[node] = False
+
+    for node in nodes:
+        if not finished_node[node]:
+            temp = [node]
+            visited_node[node] = True
+            finished_node[node] = True
+            backtrack(lines_node, temp, graph, visited_node, finished_node, node)
+
+    # (3) filter lines with length, direction criteria
+    lines = []
+    for line_node in lines_node:
+        num_node = len(line_node)
+        if num_node == 1:
+            continue
+        wrong = False
+        line = []
+        prev, cur = None, line_node[0]
+        for i in range(1, num_node):
+            nxt = line_node[i]
+            # if the inner product of two connected line segments vectors is <0, discard it
+            if (
+                i > 1
+                and (cur[0] - prev[0]) * (nxt[0] - cur[0])
+                + (cur[1] - prev[1]) * (nxt[1] - cur[1])
+                < 0
+            ):
+                wrong = True
+                break
+            line.extend(graph[cur][nxt])
+            prev, cur = cur, nxt
+        # if the length is <10, discard it
+        if wrong or len(line) < 10:
+            continue
+        lines.append(line)
+
+    return lines
+
 def classify(path_to_palmline_image):
     # load (rectified) test data
     # num_data = 10
@@ -626,7 +760,7 @@ def classify(path_to_palmline_image):
     if n_cluster == 4:
         centers = get_cluster_centers(True)
     else:
-        centers = get_cluster_centers()
+        centers = get_cluster_centers(True)
     print(f"#centers: {len(centers)}")   
 
     palmline_img = cv2.imread(path_to_palmline_image)
@@ -676,7 +810,7 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
 
     logger.info(f"Save image")
     for line in lines:
-        binary_image = np.zeros((height, width), dtype=np.uint8)
+        binary_image = np.zeros((width, height), dtype=np.uint8)
         for point in line:
             binary_image[point[0], point[1]] = 255
         image_path = f"{output_path}/{output_pattern_name}-{line_count}.png"
@@ -688,7 +822,7 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
 def export_image_from_line(width: int, height: int, line: list, output_pattern_name: str = "line"):
     check_path_compatibility(output_path)
 
-    binary_image = np.zeros((height, width), dtype=np.uint8)
+    binary_image = np.zeros((width, height), dtype=np.uint8)
     for point in line:
         binary_image[point[0], point[1]] = 255
     image_path = f"{output_path}/{output_pattern_name}.png"
@@ -711,7 +845,10 @@ def get_path_points(graph: dict, lines_node: list):
 
 
 # mask_path = "./sample/line-cross-100x100.png"
-mask_path = "./sample/line-complex-100x100.png"
+# mask_path = "./sample/line-complex-100x100.png"
+mask_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
+
+
 # mask_path = "./sample/test-mask.png"
 
 # mask_path = "./sample/line-cross-50x50.png"
@@ -727,8 +864,25 @@ check_loaded_image(image_mask)
 image_size = list(image_mask.shape[:2])
 image_name = get_filename_without_extension(mask_path)
 n_cluster = 4
+# n_cluster = 3
+
 
 my_good = [
+    13,  
+    97,
+    106,
+    112,
+    352,
+    356,
+    382,
+    401,
+    744,
+    756,
+    762,
+    1083,
+]
+
+my_good_2 = [
     5,  
     13,
     28,
@@ -759,6 +913,31 @@ my_good = [
     # 817,
     # 818,
     # 819,
+]
+
+my_good_3 = [
+    5,
+    28,
+    106,
+    108,
+    142,
+    477,
+    498,
+    596,
+    616,
+    622,
+    648,
+    652,
+    661,
+    671,
+    673,
+    685,
+    691,
+    762,
+    750,
+    818,
+    819,
+
 ]
 
 centers_new1 = [
@@ -799,7 +978,6 @@ centers_new1 = [
                 dtype=np.float32,
             ),
         ]
-
 
 
 
