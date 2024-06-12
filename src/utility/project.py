@@ -29,4 +29,16 @@ def change_to_project_path(main_script_path: str):
         logging.error(f"Error changing to script path: {e}")
 
 
+def change_to_main_root():
+    current_file_path = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file_path)
+
+    while current_dir != os.path.dirname(current_dir):
+        if "src" in os.listdir(current_dir):
+            project_root = current_dir
+            os.chdir(project_root)
+            return
+        current_dir = os.path.dirname(current_dir)
+
+
 setup_logging()

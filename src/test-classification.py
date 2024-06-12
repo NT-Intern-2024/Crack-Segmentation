@@ -1,5 +1,6 @@
 from utility.logger import *
 from image.image_utils import *
+from utility.project import *
 
 import numpy as np
 import os
@@ -305,9 +306,9 @@ def group(img):
         visited_node[node] = False
         finished_node[node] = False
     
-    logger_backtrack.info("---------------- START LOGGING -------------------")
-    logger_backtrack.info(f"lines_node: {lines_node}")
-    logger_backtrack.info(f"graph: {graph}")
+    # logger_backtrack.info("---------------- START LOGGING -------------------")
+    # logger_backtrack.info(f"lines_node: {lines_node}")
+    # logger_backtrack.info(f"graph: {graph}")
 
     for node in nodes:
         # logger_backtrack.info(f"Focus at node: {node}")
@@ -708,6 +709,7 @@ def get_path_points(graph: dict, lines_node: list):
             all_path_points.append(path_points)
     return all_path_points
 
+
 # mask_path = "./sample/line-cross-100x100.png"
 mask_path = "./sample/line-complex-100x100.png"
 # mask_path = "./sample/test-mask.png"
@@ -717,6 +719,8 @@ mask_path = "./sample/line-complex-100x100.png"
 # mask_path = "./sample/simple-line-10x10.png"
 # mask_path = "./sample/line-100x100.png"
 
+change_to_main_root()
+print(f"current path: {os.getcwd()}")
 
 image_mask = cv2.imread(mask_path)
 check_loaded_image(image_mask)
@@ -732,10 +736,10 @@ my_good = [
     108,
     112,
     140,
-    142,
-    477,
-    498,
-    513,
+    # 142,
+    # 477,
+    # 498,
+    # 513,
     # 596,
     # 616,
     # 622,
