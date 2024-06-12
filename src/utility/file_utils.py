@@ -2,7 +2,7 @@ import os
 
 import yaml
 import logging
-
+import glob
 
 def is_path_exists(folder_path: str) -> bool:
     return os.path.exists(folder_path)
@@ -42,3 +42,12 @@ def get_filename_without_extension(file_path: str) -> str:
     base_name = os.path.basename(file_path)
     file_name, _ = os.path.splitext(base_name)
     return file_name
+
+def remove_all_files(folder_path: str):
+    files = glob.glob(os.path.join(folder_path, "*"))
+
+    for file in files:
+        try: 
+            os.remove(file)
+        except Exception as e:
+            print(f"Error remoing file {file}: {e}")

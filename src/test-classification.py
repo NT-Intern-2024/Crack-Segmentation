@@ -31,11 +31,17 @@ import mediapipe as mp
 # then apply homography matrix to detected line image
 # input is the number 'idx' from image{idx}.jpg(.png)
 def rectify(idx):
-    img_path = "./PLSU/PLSU/"
+    # img_path = "./PLSU/PLSU/"
+    img_path = "./data/PLSU/" 
+
     image = cv2.imread(img_path + "img/image" + str(idx) + ".jpg")
+    print(f"load image: image{idx}")
+    check_loaded_image(image)
     image_mask = cv2.imread(
         img_path + "Mask/image" + str(idx) + ".png", cv2.IMREAD_GRAYSCALE
     )
+    print(f"load mask: mask{idx}")
+    check_loaded_image(image_mask)
     mp_hands = mp.solutions.hands
 
     # 7 landmark points (normalized)
@@ -140,11 +146,11 @@ def load_data(num_data):
 # finished_node : visited nodes at least once
 # node : current node
 def backtrack(lines_node, temp, graph, visited_node, finished_node, node):
-    logger_backtrack.info(f"\t\t Enter {backtrack.__name__}")
+    # logger_backtrack.info(f"\t\t Enter {backtrack.__name__}")
     end_pt = True
     for next_node in graph[node].keys():
-        logger_backtrack.info(f"\t\t\t visted[]: \t{visited_node}")
-        logger_backtrack.info(f"\t\t\t finished[]: \t{finished_node}")
+        # logger_backtrack.info(f"\t\t\t visted[]: \t{visited_node}")
+        # logger_backtrack.info(f"\t\t\t finished[]: \t{finished_node}")
 
         if not visited_node[next_node]:
             end_pt = False
@@ -174,7 +180,7 @@ def group(img):
     image_size = list(img.shape[:2])
 
     nodes = []
-    print(f"------ group():----------")
+    # print(f"------ group():----------")
     for j in range(1, img.shape[0] - 1):
         for i in range(1, img.shape[1] - 1):
             if img[j, i] == 0:
@@ -184,14 +190,14 @@ def group(img):
                 nodes.append((j, i))
 
     # print_matrix(count, "count: (After check nonzero)")
-    export_image_from_line(image_size[0], image_size[1], nodes, "node")
+    export_image_from_line(image_size[0], image_size[1], nodes, "01-node")
 
     # sort nodes to traverse from upper-left to lower-right
     logger_classify.info(f"\t nodes \t: {nodes}")
 
     nodes.sort(key=lambda x: x[0] + x[1])
-    print("sorted nodes")
-    print(nodes)
+    # print("sorted nodes")
+    # print(nodes)
 
     logger_classify.info(f"\t nodes (sorted): {nodes}")
 
@@ -206,7 +212,7 @@ def group(img):
     
     for node in nodes:
         y, x = node
-        print(f"node - y:{y}, x:{x}")
+        # print(f"node - y:{y}, x:{x}")
         not_visited[y, x] = 0
         around = np.multiply(
             count[y - 1 : y + 2, x - 1 : x + 2],
@@ -221,7 +227,7 @@ def group(img):
             # n_node += 1
             continue
 
-        print(np.nonzero(around))
+        # print(np.nonzero(around))
         # print_matrix(next_pos, "next_pos: ")
 
         for dy, dx in next_pos:
@@ -245,7 +251,7 @@ def group(img):
                 temp_line_rev = list(reversed(temp_line))
                 graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
 
-                export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
+                # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
                 # n_node += 1
                 continue
         
@@ -285,9 +291,9 @@ def group(img):
                     not_visited[next_y, next_x] = 1
                     break
             
-            print(f"image size ={image_size}")
+            # print(f"image size ={image_size}")
             # print(f"temp line - len:{len(temp_line)} => {temp_line}")
-            export_image_from_line(image_size[0], image_size[1], temp_line, f"temp-line-pos-node{n_node}-x{x}-y{y}")
+            # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
             n_node += 1        
         not_visited[node[0], node[1]] = 1
 
@@ -304,21 +310,22 @@ def group(img):
     logger_backtrack.info(f"graph: {graph}")
 
     for node in nodes:
-        logger_backtrack.info(f"Focus at node: {node}")
+        # logger_backtrack.info(f"Focus at node: {node}")
         # logger_backtrack.info(f"\t [recall] #all node: {len(visited_node)}")
         if not finished_node[node]:
             temp = [node]
             visited_node[node] = True
             finished_node[node] = True
-            logger_backtrack.info(f"\t Go to {backtrack.__name__}()")
-            logger_backtrack.info(f"\t\t graph[node]: \t{graph[node]}")
+            # logger_backtrack.info(f"\t Go to {backtrack.__name__}()")
+            
+            # logger_backtrack.info(f"\t\t graph[node]: \t{graph[node]}")
             backtrack(lines_node, temp, graph, visited_node, finished_node, node)
-    logger_backtrack.info(f"lines_node: {lines_node}")
-    logger_backtrack.info(f"#lines_node: {len(lines_node)}")
+    # logger_backtrack.info(f"lines_node: {lines_node}")
+    # logger_backtrack.info(f"#lines_node: {len(lines_node)}")
 
     # TODO: Check after backtrack
     connected_node = get_path_points(graph, lines_node)
-    export_image_from_lines(image_size[1], image_size[0], connected_node, "after-backtrack")
+    export_image_from_lines(image_size[0], image_size[1], connected_node, "03-after-backtrack")
 
     # (3) filter lines with length, direction criteria
     lines = []
@@ -348,7 +355,7 @@ def group(img):
         if wrong or len(line) < 10:
             continue
         lines.append(line)
-    export_image_from_lines(image_size[0], image_size[1], lines_before_filter, "before-filter")
+    export_image_from_lines(image_size[0], image_size[1], lines_before_filter, "04-before-filter")
     return lines
 
 
@@ -358,9 +365,15 @@ def group(img):
 # classify lines using l2 distance with centers in feature space
 # remain at most 3 lines
 def classify_lines(centers, lines, image_height, image_width):
+    # TODO: edit number of cluster
     classified_lines = [None, None, None]
     line_idx = [None, None, None]
     nearest = [1e9, 1e9, 1e9]
+
+    if n_cluster == 4:
+        classified_lines.append(None)
+        line_idx.append(None)
+        nearest.append(1e9)
 
     feature_list = np.empty((0, 24))
     for line in lines:
@@ -368,7 +381,8 @@ def classify_lines(centers, lines, image_height, image_width):
         feature_list = np.vstack((feature_list, feature))
 
     num_lines = len(lines)
-    for i in range(3):
+    # for i in range(3):
+    for i in range(n_cluster):
         center = centers[i]
         for j in range(num_lines):
             chosen = False
@@ -416,12 +430,19 @@ def extract_feature(line, image_height, image_width):
     feature = np.append(
         np.min(line, axis=0)[:2] / image_size, np.max(line, axis=0)[:2] / image_size
     )
+    # print(f"feature: {feature}")
     feature *= 10
+    # print(f"feature*10: {feature}")
     N = 10
     step = len(line) // N
     for i in range(N):
         l = line[i * step : (i + 1) * step]
+        # print(f"l{i+1}: {l}")
         feature = np.append(feature, np.mean(l, axis=0)[2:])
+        # print(f"np.mean: {np.mean(l, axis=0)[2:]}", end="\n\n")
+    
+    # print(f"feature (after): {feature}")
+    # print_matrix(feature, f"feature (after)")
     return feature
 
 
@@ -447,26 +468,57 @@ def get_cluster_centers(new_centers=False):
             908,
             992,
         ]
-        for idx in good:
+
+        # TODO: Add cutsom output_path 
+        my_output_path = f"./output/good_sample"
+        check_path_compatibility(my_output_path)
+        remove_all_files(my_output_path)
+
+        # for idx in good:
+        for idx in my_good:
             rectified = rectify(idx)
-            cv2.imwrite("good_sample/image" + str(idx) + ".png", rectified)
+
+            # TODO: Use cutsom output_path
+            # cv2.imwrite("good_sample/image" + str(idx) + ".png", rectified)
+            cv2.imwrite(f"{my_output_path}/image" + str(idx) + ".png", rectified)
 
         # put all data in feature space
         data = np.empty((0, 24))
-        for img_path in glob.glob("good_sample/*.png"):
+        # for img_path in glob.glob("good_sample/*.png"):
+        for img_path in glob.glob(f"{my_output_path}/*.png"):
             img = cv2.imread(img_path)
-            skel_img = cv2.cvtColor(skeletonize(img), cv2.COLOR_BGR2GRAY)
+
+            # MyDebug
+            check_loaded_image(img)
+
+            # TODO: Fix skeletonize input format
+            # skel_img = cv2.cvtColor(skeletonize(img), cv2.COLOR_BGR2GRAY)
+
+            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            skeleton = skeletonize(gray_img)
+            skel_img = skeleton.astype(np.uint8) * 255
+
+            export_image(skel_img, f"image{idx}-skel.png", f"./output/good_sample_skel")
+             
             lines = group(skel_img)
+            print("Start extract_feature")
             for line in lines:
+                # TODO: Add cutsom image size?
+                # feature = extract_feature(line, 1024, 1024)
                 feature = extract_feature(line, 1024, 1024)
                 data = np.vstack((data, feature))
+            print("End extract_feature")
 
         # k-means clustering (k=3)
         criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        print("Start kmeans")
         ret, label, centers = cv2.kmeans(
-            data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-        )
+            # TODO: Change k=4
+            # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+            data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
 
+        )
+        print("End kmeans")
         # sort centers according to max_y
         centers = list(centers)
         centers.sort(key=lambda x: x[2])
@@ -559,7 +611,7 @@ def get_cluster_centers(new_centers=False):
                 ],
                 dtype=np.float32,
             ),
-        ]
+        ] 
     return centers
 
 
@@ -569,10 +621,15 @@ def classify(path_to_palmline_image):
     # load_data(num_data)
 
     # get cluster centers
-    centers = get_cluster_centers()
+    # centers = get_cluster_centers()
+    if n_cluster == 4:
+        centers = get_cluster_centers(True)
+    else:
+        centers = get_cluster_centers()
+    print(f"#centers: {len(centers)}")   
 
     palmline_img = cv2.imread(path_to_palmline_image)
-    show_image(palmline_img, "Palm Line")
+    # show_image(palmline_img, "Palm Line")
 
     # kernel = np.ones((3, 3), np.uint8)
     # dilated = cv2.dilate(palmline_img, kernel, iterations=3)
@@ -588,8 +645,8 @@ def classify(path_to_palmline_image):
     # skel_img = cv2.cvtColor(skeletonize(palmline_img), cv2.COLOR_BGR2GRAY)
 
     # cv2.imwrite('results/skel.jpg',skel_img)
-    # cv2.imwrite('output/process-lines/skel.png',skel_img)
-    export_image(skel_img, "skel2.png", "output/proccess-lines/")
+    # cv2.imwrite(f'{output_path}/00-skel.png',skel_img)
+    export_image(skel_img, "00-skel.png", output_path)
 
     lines = group(skel_img)  # get candidate lines
     print(f"#group lines: {len(lines)}")
@@ -597,13 +654,13 @@ def classify(path_to_palmline_image):
     logger.info(f"\t number of lines (group by backtrack): {len(lines)}")
 
     image_size = list(gray_img.shape[:2])
-    export_image_from_lines(image_size[0], image_size[1], lines, "after-group")
+    export_image_from_lines(image_size[0], image_size[1], lines, "05-after-group")
 
     lines = classify_lines(
         centers, lines, palmline_img.shape[0], palmline_img.shape[1]
     )  # choose 3 lines from candidates
     # colored_img = color(skel_img, classified_lines) # color 3 lines (RGB)
-    show_image(skel_img, "Skel")
+    # show_image(skel_img, "Skel")
     return lines
 
 def print_matrix(np_array: np, info: str = ""):
@@ -611,13 +668,11 @@ def print_matrix(np_array: np, info: str = ""):
     # print(np.asmatrix(np_array), end="\n\n")
     print(np.array2string(np_array, threshold= np.inf), end="\n\n")
 
-print(f"Current path: {os.getcwd()}")
-
 def export_image_from_lines(width: int, height: int, lines: list, output_pattern_name: str = "line"):
     line_count = 1
 
-    output_path = "output/process-lines"
     check_path_compatibility(output_path)
+
     logger.info(f"Save image")
     for line in lines:
         binary_image = np.zeros((height, width), dtype=np.uint8)
@@ -625,16 +680,11 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
             binary_image[point[0], point[1]] = 255
         image_path = f"{output_path}/{output_pattern_name}-{line_count}.png"
         logger.info(f"\t save image: {image_path}")
-        # cv2.imshow(f"image {line_count}", binary_image)
         cv2.imwrite(image_path, binary_image)
 
         line_count += 1
-    
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
 def export_image_from_line(width: int, height: int, line: list, output_pattern_name: str = "line"):
-    output_path = "output/process-lines"
     check_path_compatibility(output_path)
 
     binary_image = np.zeros((height, width), dtype=np.uint8)
@@ -660,6 +710,7 @@ def get_path_points(graph: dict, lines_node: list):
 
 # mask_path = "./sample/line-cross-100x100.png"
 mask_path = "./sample/line-complex-100x100.png"
+# mask_path = "./sample/test-mask.png"
 
 # mask_path = "./sample/line-cross-50x50.png"
 # mask_path = "./sample/simple-line-cross-15x15.png"
@@ -670,11 +721,90 @@ mask_path = "./sample/line-complex-100x100.png"
 image_mask = cv2.imread(mask_path)
 check_loaded_image(image_mask)
 image_size = list(image_mask.shape[:2])
-print(f"image size: {image_size}")
 image_name = get_filename_without_extension(mask_path)
+n_cluster = 4
+
+my_good = [
+    5,  
+    13,
+    28,
+    106,
+    108,
+    112,
+    140,
+    142,
+    477,
+    498,
+    513,
+    # 596,
+    # 616,
+    # 622,
+    # 648,
+    # 652,
+    # 661,
+    # 671,
+    # 673,
+    # 685,
+    # 691,
+    # 762,
+    # 744,
+    # 750,
+    # 756,
+    # 762,
+    # 763,
+    # 817,
+    # 818,
+    # 819,
+]
+
+centers_new1 = [
+            np.array(
+                [
+                    5.4170465, 3.8961558, 6.3814063, 5.6454954, 0.3250605, 0.8100688,
+                    0.34097046, 0.9526658, 0.40841228, 0.8891923, 0.44644922, 0.82036567,
+                    0.5481257, 0.9231054, 0.6076798, 0.8870097, 0.6225118, 0.81023467,
+                    0.68190926, 0.61726826, 0.5856578, 0.70883733, 0.5123793, 0.67894644,
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    5.2557163, 3.7675252, 7.0953894, 5.6750093, 0.34175143, 0.9627604,
+                    0.4353329, 0.98086256, 0.5270465, 0.8735952, 0.56606346, 0.70149636,
+                    0.77529895, 0.78744084, 0.87813234, 0.65993667, 0.9252021, 0.52762437,
+                    0.94468206, 0.47014883, 0.91631913, 0.5546346, 0.66775674, 0.47080833,
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    5.601473, 3.4987862, 7.395289, 6.690849, 0.23009704, 0.9008044,
+                    0.45073014, 0.8196588, 0.8776976, 0.63294667, 0.927213, 0.5897087,
+                    0.7820175, 0.41643777, 0.95956403, 0.14166228, 0.8708497, 0.27273476,
+                    0.6948253, 0.5874401, 0.3956642, 0.99854386, 0.1832288, 0.9599472,
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    5.438477, 3.5410795, 8.200345, 5.5458174, 0.15321459, 0.8810476,
+                    0.39036936, 0.90064764, 0.7141441, 0.7426404, 0.695159, 0.61015314,
+                    0.8494364, 0.4329585, 0.89095706, 0.28980485, 0.93531924, 0.2557217,
+                    0.94224215, 0.21574447, 0.8467629, 0.33156824, 0.83431816, 0.4950585,
+                ],
+                dtype=np.float32,
+            ),
+        ]
+
+
+
+
+output_path = "output/process-lines"
+remove_all_files(output_path)
 
 lines = classify(mask_path)
-export_image_from_lines(image_size[0], image_size[1], lines, "after-classify")
+print(len(lines))
+export_image_from_lines(image_size[0], image_size[1], lines, "06-after-classify")
 # cv2.imshow("Skel", cv2.imread("./output/process-lines/skel.png"))
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
