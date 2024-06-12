@@ -1,6 +1,7 @@
 from utility.logger import *
 from image.image_utils import *
 from utility.project import *
+from graph.k_mean import *
 
 import numpy as np
 import os
@@ -516,15 +517,23 @@ def get_cluster_centers(new_centers=False):
                 data = np.vstack((data, feature))
 
         # k-means clustering (k=3)
-        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        ret, label, centers = cv2.kmeans(
-            # TODO: Change k=4
-            # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-            data.astype(np.float32), n_cluster, None, criteria, 8, cv2.KMEANS_RANDOM_CENTERS
-        )
+        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+
+        # ret, label, centers = cv2.kmeans(
+        #     # TODO: Change k=4
+        #     # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+        #     data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+        # )
+        
+        plot_silhouette_scores(data, 10)
+        # plot_cluster_pca(data, n_cluster)
+
+        print(f"Center: {type(centers)}")
+        print(centers)
+
         # sort centers according to max_y
         centers = list(centers)
-        centers.sort(key=lambda x: x[2])
+        centers.sort(key=lambda x: x[3])
     else:
         centers = [
             np.array(
