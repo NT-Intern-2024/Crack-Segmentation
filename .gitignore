@@ -10,7 +10,7 @@ data/*
 !data/Palm/
 data/Palm/*
 !data/STWPalmCrack/
-# !data/Palm/PalmAll/
+!data/Palm/PalmAll/
 
 output/*
 !output/dataset/
