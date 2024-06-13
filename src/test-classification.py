@@ -1028,6 +1028,7 @@ my_good_4 = [
 
 
 output_path = "output/process-lines"
+check_path_compatibility(output_path)
 remove_all_files(output_path)
 
 lines = classify(mask_path)
