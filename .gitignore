@@ -11,6 +11,8 @@ data/*
 data/Palm/*
 !data/STWPalmCrack/
 # !data/Palm/PalmAll/
+!data/MySample*
+
 
 output/*
 !output/dataset/
