@@ -5,6 +5,7 @@ from utility.constants import *
 from utility.file_utils import *
 from image.hand_detector import *
 
+from skimage.morphology import skeletonize
 
 def warp_image(image: cv2.typing.MatLike):
     pts_index = list(range(21))
@@ -84,3 +85,12 @@ def get_target_point(image_width: int, image_height: int):
 def warp(image: cv2.typing.MatLike):
     warp_result = warp_image(image)
     return warp_result
+
+
+def skeletonize_image(binary_image: cv2.typing.MatLike) -> cv2.typing.MatLike:
+    gray_img = cv2.cvtColor(binary_image, cv2.COLOR_BGR2GRAY)
+
+    skeleton = skeletonize(gray_img)
+    skel_img = skeleton.astype(np.uint8) * 255
+
+    return skel_img

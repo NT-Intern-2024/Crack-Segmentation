@@ -13,6 +13,7 @@ import numpy as np
 from PIL import Image
 from skimage.morphology import skeletonize
 import mediapipe as mp
+from collections import defaultdict
 
 #########################################################################################
 # Sketch of idea                                                                        #
@@ -433,19 +434,12 @@ def extract_feature(line, image_height, image_width):
     feature = np.append(
         np.min(line, axis=0)[:2] / image_size, np.max(line, axis=0)[:2] / image_size
     )
-    # print(f"feature: {feature}")
     feature *= 10
-    # print(f"feature*10: {feature}")
     N = 10
     step = len(line) // N
     for i in range(N):
         l = line[i * step : (i + 1) * step]
-        # print(f"l{i+1}: {l}")
         feature = np.append(feature, np.mean(l, axis=0)[2:])
-        # print(f"np.mean: {np.mean(l, axis=0)[2:]}", end="\n\n")
-    
-    # print(f"feature (after): {feature}")
-    # print_matrix(feature, f"feature (after)")
     return feature
 
 
@@ -544,16 +538,16 @@ def get_cluster_centers(new_centers=False):
                 data = np.vstack((data, feature))
 
         # k-means clustering (k=3)
-        # criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
 
-        # ret, label, centers = cv2.kmeans(
-        #     # TODO: Change k=4
-        #     # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-        #     data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-        # )
+        ret, label, centers = cv2.kmeans(
+            # TODO: Change k=4
+            # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+            data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+        )
 
-        print_matrix(data, "data: ")
-        plot_dbscan(data)
+        # print_matrix(data, "data: ")
+        # plot_dbscan(data)
         # plot_silhouette_scores(data, 10)
         # plot_cluster_pca(data, n_cluster)
 
@@ -818,16 +812,21 @@ def classify(path_to_palmline_image):
     # skel_img = cv2.cvtColor(skeletonize(palmline_img), cv2.COLOR_BGR2GRAY)
 
     # cv2.imwrite('results/skel.jpg',skel_img)
-    # cv2.imwrite(f'{output_path}/00-skel.png',skel_img)
     export_image(skel_img, "00-skel.png", output_path)
 
     lines = group(skel_img)  # get candidate lines
-    print(f"#group lines: {len(lines)}")
+    # print(f"#group lines: {len(lines)}")
     # print(lines)
     logger.info(f"\t number of lines (group by backtrack): {len(lines)}")
 
     image_size = list(gray_img.shape[:2])
+    # print(lines)
     export_image_from_lines(image_size[0], image_size[1], lines, "05-after-group")
+
+    # lines = remove_duplicate_points_between_lines(lines)
+    lines = remove_lines(lines)
+    print(lines)
+    export_image_from_lines(image_size[0], image_size[1], lines, "06-after-remove-line")
 
     lines = classify_lines(
         centers, lines, palmline_img.shape[0], palmline_img.shape[1]
@@ -877,6 +876,63 @@ def get_path_points(graph: dict, lines_node: list):
             all_path_points.append(path_points)
     return all_path_points
 
+def remove_duplicate_points_between_lines(lines: list):
+    """
+    Remove points from each consecutive pair of lines in lines_output.
+
+    Args:
+    - lines_output (list of lists of lists): List of lines, where each line is a list of points [y, x, dy, dx].
+
+    Returns:
+    - list of lists of lists: Unique points from each line after removal between consecutive lines.
+    """
+    unique_lines = []
+    
+    for i in range(len(lines) - 1):
+        line1 = lines[i]
+        line2 = lines[i + 1]
+        
+        # Convert line2 to a set of (y, x) tuples for fast lookup
+        line2_set = {(point[0], point[1]) for point in line2}
+        
+        # Use a list comprehension to filter out points in line1 that are in line2
+        unique_line = [point for point in line1 if (point[0], point[1]) not in line2_set]
+        
+        unique_lines.append(unique_line)
+    
+    return unique_lines
+
+def remove_lines(lines):
+    if not lines:
+        return lines
+    
+    total_lines = len(lines)
+    point_count = defaultdict(int)
+    
+    # Count occurrences of each (y, x) point across all lines
+    for line in lines:
+        unique_points = set((point[0], point[1]) for point in line)
+        for point in unique_points:
+            point_count[point] += 1
+    
+    # Function to calculate percentage of points in line that are duplicate
+    def calculate_duplicate_percentage(line):
+        if not line:
+            return 0.0
+        
+        unique_points = set((point[0], point[1]) for point in line)
+        total_points = len(line)
+        duplicate_points = sum(1 for point in unique_points if point_count[point] > 1)
+        return (duplicate_points / total_points) * 100
+    
+    # Filter lines based on the criteria
+    filtered_lines = []
+    for line in lines:
+        percentage = calculate_duplicate_percentage(line)
+        if percentage > 80.0:
+            filtered_lines.append(line)
+    
+    return filtered_lines
 
 # mask_path = "./sample/line-cross-100x100.png"
 # mask_path = "./sample/line-complex-100x100.png"
@@ -1017,12 +1073,10 @@ my_good_4 = [
     12,
     104,
     249,
-    256,
     396,
     402,
     487,
     698,
-    908,
     992
 ]
 
@@ -1033,7 +1087,7 @@ remove_all_files(output_path)
 
 lines = classify(mask_path)
 print(len(lines))
-export_image_from_lines(image_size[0], image_size[1], lines, "06-after-classify")
+export_image_from_lines(image_size[0], image_size[1], lines, "07-after-classify")
 # cv2.imshow("Skel", cv2.imread("./output/process-lines/skel.png"))
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
