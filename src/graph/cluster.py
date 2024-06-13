@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
+from sklearn.cluster import DBSCAN
 from mpl_toolkits.mplot3d import Axes3D
 
 def plot_silhouette_scores(data, max_k: int):
@@ -26,6 +27,7 @@ def plot_cluster_pca(data, n_clusters):
     _, labels, centers = cv2.kmeans(data.astype(np.float32), n_clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
 
     if data.shape[1] > 2:
+        print(f"data.shape[1] > 2")
         pca = PCA(n_components=2)
         reduced_data = pca.fit_transform(data)
         reduced_center = pca.transform(centers)
@@ -60,3 +62,13 @@ def plot_cluster_pca(data, n_clusters):
 #     plt.ylabel('Feature 2')
 #     plt.show()
 
+def plot_dbscan(data):
+    db = DBSCAN(min_samples=5).fit(data)
+    labels = db.labels_
+
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap="viridis")
+    plt.title("DBSCAN")
+    plt.xlabel("Feat 1")
+    plt.ylabel("Feat 2")
+    plt.show()
+    

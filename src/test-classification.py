@@ -1,7 +1,9 @@
 from utility.logger import *
 from image.image_utils import *
 from utility.project import *
-from graph.k_mean import *
+from graph.cluster import *
+from utility.printer import *
+from utility.matrix import *
 
 import numpy as np
 import os
@@ -35,8 +37,8 @@ import mediapipe as mp
 def rectify(idx):
     # TODO: Good sample path (dataset)
     # img_path = "./PLSU/PLSU/"
-    img_path = "./data/PLSU/" 
-    # img_path = "./data/MySample/"
+    # img_path = "./data/PLSU/" 
+    img_path = "./data/MySample2/"
     image = cv2.imread(img_path + "img/image" + str(idx) + ".jpg")
     print(f"load image: image{idx}")
     check_loaded_image(image)
@@ -447,6 +449,27 @@ def extract_feature(line, image_height, image_width):
     return feature
 
 
+def extract_feature_2(line: list, image_height: int, image_width: int):
+    image_size = np.array([image_height, image_width], dtype=np.float32)
+
+    min_coords = np.min(line, axis=0)[:2] / image_size
+    max_coords = np.max(line, axis=0)[:2] / image_size
+
+    feature = np.concatenate((min_coords, max_coords))
+
+    N = 10
+    step = len(line) // N
+
+    for i in range(N):
+        l = line[i * step : (i + 1) * step]
+        
+        if len(l) > 0:
+            mean_direction = np.mean(np.diff(l, axis=0), axis=0)
+            feature = np.append(feature, mean_direction)
+        else:
+            feature = np.append(feature, [0, 0])
+    return feature
+
 # find 3 cluster centers in feature space
 # we can use pre-trained centers for testing
 def get_cluster_centers(new_centers=False):
@@ -477,7 +500,8 @@ def get_cluster_centers(new_centers=False):
         remove_all_files(f"./output/good_sample_skel")
 
         # for idx in good:
-        for idx in my_good_3:
+        # for idx in my_good_3:
+        for idx in my_good_4:
             rectified = rectify(idx)
 
             # TODO: Use cutsom output_path
@@ -486,6 +510,8 @@ def get_cluster_centers(new_centers=False):
 
         # put all data in feature space
         data = np.empty((0, 24))
+        # data = np.empty((0, 44))
+
         # for img_path in glob.glob("good_sample/*.png"):
         for img_path in glob.glob(f"{my_output_path}/*.png"):
             img = cv2.imread(img_path)
@@ -514,18 +540,21 @@ def get_cluster_centers(new_centers=False):
                 # TODO: Add cutsom image size?
                 # feature = extract_feature(line, 1024, 1024)
                 feature = extract_feature(line, 1024, 1024)
+                # print(f"feature: {feature}")
                 data = np.vstack((data, feature))
 
         # k-means clustering (k=3)
-        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+        # criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
 
         # ret, label, centers = cv2.kmeans(
         #     # TODO: Change k=4
         #     # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
         #     data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
         # )
-        
-        plot_silhouette_scores(data, 10)
+
+        print_matrix(data, "data: ")
+        plot_dbscan(data)
+        # plot_silhouette_scores(data, 10)
         # plot_cluster_pca(data, n_cluster)
 
         print(f"Center: {type(centers)}")
@@ -807,10 +836,6 @@ def classify(path_to_palmline_image):
     # show_image(skel_img, "Skel")
     return lines
 
-def print_matrix(np_array: np, info: str = ""):
-    print(info)
-    # print(np.asmatrix(np_array), end="\n\n")
-    print(np.array2string(np_array, threshold= np.inf), end="\n\n")
 
 def export_image_from_lines(width: int, height: int, lines: list, output_pattern_name: str = "line"):
     line_count = 1
@@ -988,6 +1013,18 @@ centers_new1 = [
             ),
         ]
 
+my_good_4 = [
+    12,
+    104,
+    249,
+    256,
+    396,
+    402,
+    487,
+    698,
+    908,
+    992
+]
 
 
 output_path = "output/process-lines"
