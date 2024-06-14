@@ -88,9 +88,10 @@ def warp(image: cv2.typing.MatLike):
 
 
 def skeletonize_image(binary_image: cv2.typing.MatLike) -> cv2.typing.MatLike:
-    gray_img = cv2.cvtColor(binary_image, cv2.COLOR_BGR2GRAY)
-
-    skeleton = skeletonize(gray_img)
+    # gray_img = cv2.cvtColor(binary_image, cv2.COLOR_gra)
+    
+    skeleton = skeletonize(binary_image)
+    # skeleton = skeletonize(gray_img)
     skel_img = skeleton.astype(np.uint8) * 255
 
     return skel_img

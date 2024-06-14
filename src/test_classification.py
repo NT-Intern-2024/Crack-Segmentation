@@ -934,7 +934,8 @@ def remove_lines(lines):
 
 # mask_path = "./sample/line-cross-100x100.png"
 # mask_path = "./sample/line-complex-100x100.png"
-mask_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
+# mask_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
+mask_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
 
 
 # mask_path = "./sample/test-mask.png"
