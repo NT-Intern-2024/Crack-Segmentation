@@ -152,13 +152,13 @@ def separate_lines(image_path):
 
 change_to_main_root()
 # TestImage: Perfect
-# image_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
+image_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
 
 # TestImage: Small braching
 # image_path = "./sample/Results-stwcrack-Alex0373-Mask.png"
 
 # TestImage:
-image_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
+# image_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
 # image_path = "./sample/Alex0324.JPG"
 
 

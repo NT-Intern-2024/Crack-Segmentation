@@ -821,10 +821,11 @@ def classify(path_to_palmline_image):
     # print(lines)
     export_image_from_lines(image_size[0], image_size[1], lines, "05-after-group")
 
-    # lines = remove_duplicate_points_between_lines(lines)
-    lines = remove_lines(lines)
-    print(lines)
-    export_image_from_lines(image_size[0], image_size[1], lines, "06-after-remove-line")
+    # TODO: Warning - remove duplicate line
+    # lines = remove_lines(lines)
+    # print(f"Line[0]: {lines[0]}")
+
+    # export_image_from_lines(image_size[0], image_size[1], lines, "06-after-remove-line")
 
     lines = classify_lines(
         centers, lines, palmline_img.shape[0], palmline_img.shape[1]
@@ -950,8 +951,10 @@ print(f"current path: {os.getcwd()}")
 
 image_mask = cv2.imread(mask_path)
 check_loaded_image(image_mask)
+
 image_size = list(image_mask.shape[:2])
 image_name = get_filename_without_extension(mask_path)
+
 n_cluster = 4
 # n_cluster = 3
 
@@ -969,64 +972,6 @@ my_good = [
     756,
     762,
     1083,
-]
-
-my_good_2 = [
-    5,  
-    13,
-    28,
-    106,
-    108,
-    112,
-    140,
-    # 142,
-    # 477,
-    # 498,
-    # 513,
-    # 596,
-    # 616,
-    # 622,
-    # 648,
-    # 652,
-    # 661,
-    # 671,
-    # 673,
-    # 685,
-    # 691,
-    # 762,
-    # 744,
-    # 750,
-    # 756,
-    # 762,
-    # 763,
-    # 817,
-    # 818,
-    # 819,
-]
-
-my_good_3 = [
-    5,
-    28,
-    106,
-    108,
-    142,
-    477,
-    498,
-    596,
-    616,
-    622,
-    648,
-    652,
-    661,
-    671,
-    673,
-    685,
-    691,
-    762,
-    750,
-    818,
-    819,
-
 ]
 
 centers_new1 = [

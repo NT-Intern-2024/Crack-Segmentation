@@ -146,13 +146,13 @@ def separate_lines(image_path):
 
 change_to_main_root()
 # TestImage: Perfect
-# image_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
+image_path = "./sample/Results-stwcrack-Alex0310-Mask.png"
 
 # TestImage: Small braching
 # image_path = "./sample/Results-stwcrack-Alex0373-Mask.png"
 
 # TestImage:
-image_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
+# image_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
 # image_path = "./sample/Alex0324.JPG"
 
 
@@ -174,7 +174,7 @@ export_image(my_image, "00-image.png", output_path)
 export_image(skel_image, "01-skel.png", output_path)
 lines = separate_lines(f"{output_path}/01-skel.png")
 
-print(lines)
+print(lines[0])
 
 
 export_image_from_lines(img_width, img_height, lines, "test-grouping", output_path)
