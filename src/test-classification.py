@@ -494,7 +494,6 @@ def get_cluster_centers(new_centers=False):
         remove_all_files(f"./output/good_sample_skel")
 
         # for idx in good:
-        # for idx in my_good_3:
         for idx in my_good_4:
             rectified = rectify(idx)
 
@@ -504,7 +503,6 @@ def get_cluster_centers(new_centers=False):
 
         # put all data in feature space
         data = np.empty((0, 24))
-        # data = np.empty((0, 44))
 
         # for img_path in glob.glob("good_sample/*.png"):
         for img_path in glob.glob(f"{my_output_path}/*.png"):
