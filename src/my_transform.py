@@ -3,15 +3,15 @@ from image.image import *
 from utility.config import Config
 from utility.constants import CONFIG_FILE
 from utility.file_utils import *
-from utility.project import change_to_project_path
+from utility.project import change_to_main_root
 
 
 def main():
-    change_to_project_path(__file__)
+    change_to_main_root(__file__)
     check_path_exists(CONFIG_FILE)
     user_config = Config()
     print(user_config)
-    print(user_config.get('dataset', 'path'))
+    print(user_config.get("dataset", "path"))
 
     # image_path = "../data/Palm/etc/hand-2.jpg"
     # image_path = "../data/Palm/PalmAll/IMG_FEMALE_0001.jpg"

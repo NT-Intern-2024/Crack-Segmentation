@@ -9,6 +9,7 @@ from measurement import *
 
 from utility.logger import *
 
+
 def main(input):
     # TODO: edit input format
     path_to_input_image = "{}".format(input)
@@ -42,7 +43,9 @@ def main(input):
     path_to_warped_image = f"{output_process_format}-B-warped_palm.jpg"
     path_to_warped_image_clean = f"{output_process_format}-C-warped_palm_clean.jpg"
     path_to_warped_image_mini = f"{output_process_format}-B-warped_palm_mini.jpg"
-    path_to_warped_image_clean_mini = f"{output_process_format}-B-warped_palm_clean_mini.jpg"
+    path_to_warped_image_clean_mini = (
+        f"{output_process_format}-B-warped_palm_clean_mini.jpg"
+    )
     path_to_palmline_image = f"{predicted_mask_format}-palm_lines.png"
 
     path_to_result = f"{path_to_my_results}/result"
@@ -77,8 +80,12 @@ def main(input):
         check_path_exists(path_to_palmline_image)
 
         # TODO: Custom save
-        save_comparison(path_to_warped_image, path_to_palmline_image, result_comparison_format)
-        logger.info(f"{file_name}\t save comparison, \t\t save at {result_comparison_format}")
+        save_comparison(
+            path_to_warped_image, path_to_palmline_image, result_comparison_format
+        )
+        logger.info(
+            f"{file_name}\t save comparison, \t\t save at {result_comparison_format}"
+        )
 
         # 3. Line classification
         lines = classify(path_to_palmline_image)
@@ -88,7 +95,9 @@ def main(input):
         im, contents = measure(path_to_warped_image_mini, lines)
         if im is None:
             logger.error(f"{file_name} \t image not loaded")
-        logger.info(f"{file_name}\t save measurement, \t\t save at {path_to_warped_image_mini}")
+        logger.info(
+            f"{file_name}\t save measurement, \t\t save at {path_to_warped_image_mini}"
+        )
 
         # 5. Save result
         save_result(im, contents, resize_value, result_format)
@@ -123,7 +132,7 @@ if __name__ == "__main__":
     # TODO: Add parser
     # args = parser.parse_args()
 
-    change_to_project_path(__file__)
+    change_to_main_root(__file__)
 
     # TODO: use images or image only
     # run_images_dataset(parser)

@@ -9,7 +9,7 @@ image_path = "../data/Palm/After1/IMG_0016.JPG"
 # image_path = "../output/IMG_0001.JPG"
 
 # Old using
-change_to_project_path(__file__)
+change_to_main_root(__file__)
 image8 = MaskingBuilder(image_path)
 
 # Run
@@ -48,6 +48,7 @@ def add_data(image_data: list[np.ndarray]):
             "Processed 2": image_data[2],
         }
     )
+
 
 # add_data(
 #     [
