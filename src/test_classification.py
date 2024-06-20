@@ -38,7 +38,7 @@ from collections import defaultdict
 def rectify(idx):
     # TODO: Good sample path (dataset)
     # img_path = "./PLSU/PLSU/"
-    # img_path = "./data/PLSU/" 
+    # img_path = "./data/PLSU/"
     img_path = "./data/MySample2/"
     image = cv2.imread(img_path + "img/image" + str(idx) + ".jpg")
     print(f"load image: image{idx}")
@@ -109,7 +109,6 @@ def rectify(idx):
         rectified_image = np.asarray(
             pil_img.resize((1024, 1024), resample=Image.NEAREST)
         )
-        
 
         return rectified_image
 
@@ -219,7 +218,7 @@ def group(img):
     not_visited = np.ones(img.shape)
 
     n_node = 1
-    
+
     for node in nodes:
         y, x = node
         # print(f"node - y:{y}, x:{x}")
@@ -264,7 +263,7 @@ def group(img):
                 # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
                 # n_node += 1
                 continue
-        
+
             while True:
                 y, x = temp_line[-1][:2]
                 not_visited[y, x] = 0
@@ -296,9 +295,9 @@ def group(img):
                     ] = temp_line_rev
                     not_visited[next_y, next_x] = 1
                     break
-            
+
             # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
-            n_node += 1        
+            n_node += 1
         not_visited[node[0], node[1]] = 1
 
     # (2) find all possible lines by graph backtracking
@@ -308,7 +307,7 @@ def group(img):
     for node in nodes:
         visited_node[node] = False
         finished_node[node] = False
-    
+
     # logger_backtrack.info("---------------- START LOGGING -------------------")
     # logger_backtrack.info(f"lines_node: {lines_node}")
     # logger_backtrack.info(f"graph: {graph}")
@@ -321,7 +320,7 @@ def group(img):
             visited_node[node] = True
             finished_node[node] = True
             # logger_backtrack.info(f"\t Go to {backtrack.__name__}()")
-            
+
             # logger_backtrack.info(f"\t\t graph[node]: \t{graph[node]}")
             backtrack(lines_node, temp, graph, visited_node, finished_node, node)
     # logger_backtrack.info(f"lines_node: {lines_node}")
@@ -329,7 +328,9 @@ def group(img):
 
     # TODO: Check after backtrack
     connected_node = get_path_points(graph, lines_node)
-    export_image_from_lines(image_size[0], image_size[1], connected_node, "03-after-backtrack")
+    export_image_from_lines(
+        image_size[0], image_size[1], connected_node, "03-after-backtrack"
+    )
 
     # (3) filter lines with length, direction criteria
     lines = []
@@ -359,7 +360,9 @@ def group(img):
         if wrong or len(line) < 10:
             continue
         lines.append(line)
-    export_image_from_lines(image_size[0], image_size[1], lines_before_filter, "04-before-filter")
+    export_image_from_lines(
+        image_size[0], image_size[1], lines_before_filter, "04-before-filter"
+    )
     return lines
 
 
@@ -456,13 +459,14 @@ def extract_feature_2(line: list, image_height: int, image_width: int):
 
     for i in range(N):
         l = line[i * step : (i + 1) * step]
-        
+
         if len(l) > 0:
             mean_direction = np.mean(np.diff(l, axis=0), axis=0)
             feature = np.append(feature, mean_direction)
         else:
             feature = np.append(feature, [0, 0])
     return feature
+
 
 # find 3 cluster centers in feature space
 # we can use pre-trained centers for testing
@@ -476,7 +480,7 @@ def get_cluster_centers(new_centers=False):
             212,
             220,
             249,
-            256, 
+            256,
             295,
             304,
             396,
@@ -487,7 +491,7 @@ def get_cluster_centers(new_centers=False):
             992,
         ]
 
-        # TODO: Add cutsom output_path 
+        # TODO: Add cutsom output_path
         my_output_path = f"./output/good_sample"
         check_path_compatibility(my_output_path)
         remove_all_files(my_output_path)
@@ -517,9 +521,11 @@ def get_cluster_centers(new_centers=False):
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             skeleton = skeletonize(gray_img)
             skel_img = skeleton.astype(np.uint8) * 255
-            
+
             image_name = get_filename_without_extension(img_path)
-            export_image(skel_img, f"{image_name}-skel.png", f"./output/good_sample_skel")
+            export_image(
+                skel_img, f"{image_name}-skel.png", f"./output/good_sample_skel"
+            )
 
             # TODO: Warning use original group function
             # lines = group(skel_img)
@@ -527,7 +533,7 @@ def get_cluster_centers(new_centers=False):
             # MyDebug:
             print(f"Enter group_original(): {image_name}")
             lines = group_original(skel_img)
-            
+
             for line in lines:
                 # TODO: Add cutsom image size?
                 # feature = extract_feature(line, 1024, 1024)
@@ -541,7 +547,12 @@ def get_cluster_centers(new_centers=False):
         ret, label, centers = cv2.kmeans(
             # TODO: Change k=4
             # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-            data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+            data.astype(np.float32),
+            n_cluster,
+            None,
+            criteria,
+            10,
+            cv2.KMEANS_RANDOM_CENTERS,
         )
 
         # print_matrix(data, "data: ")
@@ -644,7 +655,7 @@ def get_cluster_centers(new_centers=False):
                 ],
                 dtype=np.float32,
             ),
-        ] 
+        ]
     return centers
 
 
@@ -699,7 +710,7 @@ def group_original(img):
                 temp_line_rev = list(reversed(temp_line))
                 graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
                 continue
-        
+
             while True:
                 y, x = temp_line[-1][:2]
                 not_visited[y, x] = 0
@@ -780,6 +791,7 @@ def group_original(img):
 
     return lines
 
+
 def classify(path_to_palmline_image):
     # load (rectified) test data
     # num_data = 10
@@ -791,7 +803,7 @@ def classify(path_to_palmline_image):
         centers = get_cluster_centers(True)
     else:
         centers = get_cluster_centers(True)
-    print(f"#centers: {len(centers)}")   
+    print(f"#centers: {len(centers)}")
 
     palmline_img = cv2.imread(path_to_palmline_image)
     # show_image(palmline_img, "Palm Line")
@@ -799,7 +811,7 @@ def classify(path_to_palmline_image):
     # kernel = np.ones((3, 3), np.uint8)
     # dilated = cv2.dilate(palmline_img, kernel, iterations=3)
     # eroded = cv2.erode(dilated, kernel, iterations=3)
-    
+
     # TODO: Fix
     gray_img = cv2.cvtColor(palmline_img, cv2.COLOR_BGR2GRAY)
 
@@ -835,7 +847,9 @@ def classify(path_to_palmline_image):
     return lines
 
 
-def export_image_from_lines(width: int, height: int, lines: list, output_pattern_name: str = "line"):
+def export_image_from_lines(
+    width: int, height: int, lines: list, output_pattern_name: str = "line"
+):
     line_count = 1
 
     check_path_compatibility(output_path)
@@ -851,7 +865,10 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
 
         line_count += 1
 
-def export_image_from_line(width: int, height: int, line: list, output_pattern_name: str = "line"):
+
+def export_image_from_line(
+    width: int, height: int, line: list, output_pattern_name: str = "line"
+):
     check_path_compatibility(output_path)
 
     binary_image = np.zeros((width, height), dtype=np.uint8)
@@ -861,19 +878,21 @@ def export_image_from_line(width: int, height: int, line: list, output_pattern_n
     cv2.imwrite(image_path, binary_image)
 
     logger.info(f"Save image: {image_path}")
-    
+
+
 def get_path_points(graph: dict, lines_node: list):
     all_path_points = []
     for line in lines_node:
         if len(line) > 1:
             path_points = []
-            for i in range(len(line)-1):
+            for i in range(len(line) - 1):
                 start_node = line[i]
-                end_node = line[i+1]
+                end_node = line[i + 1]
                 if start_node in graph and end_node in graph[start_node]:
                     path_points.extend(graph[start_node][end_node])
             all_path_points.append(path_points)
     return all_path_points
+
 
 def remove_duplicate_points_between_lines(lines: list):
     """
@@ -886,52 +905,56 @@ def remove_duplicate_points_between_lines(lines: list):
     - list of lists of lists: Unique points from each line after removal between consecutive lines.
     """
     unique_lines = []
-    
+
     for i in range(len(lines) - 1):
         line1 = lines[i]
         line2 = lines[i + 1]
-        
+
         # Convert line2 to a set of (y, x) tuples for fast lookup
         line2_set = {(point[0], point[1]) for point in line2}
-        
+
         # Use a list comprehension to filter out points in line1 that are in line2
-        unique_line = [point for point in line1 if (point[0], point[1]) not in line2_set]
-        
+        unique_line = [
+            point for point in line1 if (point[0], point[1]) not in line2_set
+        ]
+
         unique_lines.append(unique_line)
-    
+
     return unique_lines
+
 
 def remove_lines(lines):
     if not lines:
         return lines
-    
+
     total_lines = len(lines)
     point_count = defaultdict(int)
-    
+
     # Count occurrences of each (y, x) point across all lines
     for line in lines:
         unique_points = set((point[0], point[1]) for point in line)
         for point in unique_points:
             point_count[point] += 1
-    
+
     # Function to calculate percentage of points in line that are duplicate
     def calculate_duplicate_percentage(line):
         if not line:
             return 0.0
-        
+
         unique_points = set((point[0], point[1]) for point in line)
         total_points = len(line)
         duplicate_points = sum(1 for point in unique_points if point_count[point] > 1)
         return (duplicate_points / total_points) * 100
-    
+
     # Filter lines based on the criteria
     filtered_lines = []
     for line in lines:
         percentage = calculate_duplicate_percentage(line)
         if percentage > 80.0:
             filtered_lines.append(line)
-    
+
     return filtered_lines
+
 
 # mask_path = "./sample/line-cross-100x100.png"
 # mask_path = "./sample/line-complex-100x100.png"
@@ -960,7 +983,7 @@ n_cluster = 4
 
 
 my_good = [
-    13,  
+    13,
     97,
     106,
     112,
@@ -975,54 +998,125 @@ my_good = [
 ]
 
 centers_new1 = [
-            np.array(
-                [
-                    5.4170465, 3.8961558, 6.3814063, 5.6454954, 0.3250605, 0.8100688,
-                    0.34097046, 0.9526658, 0.40841228, 0.8891923, 0.44644922, 0.82036567,
-                    0.5481257, 0.9231054, 0.6076798, 0.8870097, 0.6225118, 0.81023467,
-                    0.68190926, 0.61726826, 0.5856578, 0.70883733, 0.5123793, 0.67894644,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.2557163, 3.7675252, 7.0953894, 5.6750093, 0.34175143, 0.9627604,
-                    0.4353329, 0.98086256, 0.5270465, 0.8735952, 0.56606346, 0.70149636,
-                    0.77529895, 0.78744084, 0.87813234, 0.65993667, 0.9252021, 0.52762437,
-                    0.94468206, 0.47014883, 0.91631913, 0.5546346, 0.66775674, 0.47080833,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.601473, 3.4987862, 7.395289, 6.690849, 0.23009704, 0.9008044,
-                    0.45073014, 0.8196588, 0.8776976, 0.63294667, 0.927213, 0.5897087,
-                    0.7820175, 0.41643777, 0.95956403, 0.14166228, 0.8708497, 0.27273476,
-                    0.6948253, 0.5874401, 0.3956642, 0.99854386, 0.1832288, 0.9599472,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.438477, 3.5410795, 8.200345, 5.5458174, 0.15321459, 0.8810476,
-                    0.39036936, 0.90064764, 0.7141441, 0.7426404, 0.695159, 0.61015314,
-                    0.8494364, 0.4329585, 0.89095706, 0.28980485, 0.93531924, 0.2557217,
-                    0.94224215, 0.21574447, 0.8467629, 0.33156824, 0.83431816, 0.4950585,
-                ],
-                dtype=np.float32,
-            ),
-        ]
-
-my_good_4 = [
-    12,
-    104,
-    249,
-    396,
-    402,
-    487,
-    698,
-    992
+    np.array(
+        [
+            5.4170465,
+            3.8961558,
+            6.3814063,
+            5.6454954,
+            0.3250605,
+            0.8100688,
+            0.34097046,
+            0.9526658,
+            0.40841228,
+            0.8891923,
+            0.44644922,
+            0.82036567,
+            0.5481257,
+            0.9231054,
+            0.6076798,
+            0.8870097,
+            0.6225118,
+            0.81023467,
+            0.68190926,
+            0.61726826,
+            0.5856578,
+            0.70883733,
+            0.5123793,
+            0.67894644,
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            5.2557163,
+            3.7675252,
+            7.0953894,
+            5.6750093,
+            0.34175143,
+            0.9627604,
+            0.4353329,
+            0.98086256,
+            0.5270465,
+            0.8735952,
+            0.56606346,
+            0.70149636,
+            0.77529895,
+            0.78744084,
+            0.87813234,
+            0.65993667,
+            0.9252021,
+            0.52762437,
+            0.94468206,
+            0.47014883,
+            0.91631913,
+            0.5546346,
+            0.66775674,
+            0.47080833,
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            5.601473,
+            3.4987862,
+            7.395289,
+            6.690849,
+            0.23009704,
+            0.9008044,
+            0.45073014,
+            0.8196588,
+            0.8776976,
+            0.63294667,
+            0.927213,
+            0.5897087,
+            0.7820175,
+            0.41643777,
+            0.95956403,
+            0.14166228,
+            0.8708497,
+            0.27273476,
+            0.6948253,
+            0.5874401,
+            0.3956642,
+            0.99854386,
+            0.1832288,
+            0.9599472,
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            5.438477,
+            3.5410795,
+            8.200345,
+            5.5458174,
+            0.15321459,
+            0.8810476,
+            0.39036936,
+            0.90064764,
+            0.7141441,
+            0.7426404,
+            0.695159,
+            0.61015314,
+            0.8494364,
+            0.4329585,
+            0.89095706,
+            0.28980485,
+            0.93531924,
+            0.2557217,
+            0.94224215,
+            0.21574447,
+            0.8467629,
+            0.33156824,
+            0.83431816,
+            0.4950585,
+        ],
+        dtype=np.float32,
+    ),
 ]
+
+my_good_4 = [12, 104, 249, 396, 402, 487, 698, 992]
 
 
 output_path = "output/process-lines"
