@@ -2,14 +2,6 @@ import os
 import logging
 
 
-def setup_logging():
-    """
-    Configure logging settings.
-    """
-    logging.basicConfig(filename="path.log", filemode="w", level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
-
-
 def change_to_project_path(main_script_path: str):
     """
     Change the current working directory to the directory where the script is located.
@@ -39,6 +31,3 @@ def change_to_main_root():
             os.chdir(project_root)
             return
         current_dir = os.path.dirname(current_dir)
-
-
-setup_logging()
