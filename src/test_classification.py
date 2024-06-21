@@ -43,7 +43,7 @@ from collections import defaultdict
 def rectify(idx):
     # TODO: Good sample path (dataset)
     # img_path = "./PLSU/PLSU/"
-    # img_path = "./data/PLSU/" 
+    # img_path = "./data/PLSU/"
     img_path = "./data/MySample2/"
     image = cv2.imread(img_path + "img/image" + str(idx) + ".jpg")
     print(f"load image: image{idx}")
@@ -114,7 +114,6 @@ def rectify(idx):
         rectified_image = np.asarray(
             pil_img.resize((1024, 1024), resample=Image.NEAREST)
         )
-        
 
         return rectified_image
 
@@ -224,7 +223,7 @@ def group(img):
     not_visited = np.ones(img.shape)
 
     n_node = 1
-    
+
     for node in nodes:
         y, x = node
         # print(f"node - y:{y}, x:{x}")
@@ -270,7 +269,7 @@ def group(img):
                 # n_node += 1
 
                 continue
-        
+
             while True:
                 y, x = temp_line[-1][:2]
                 not_visited[y, x] = 0
@@ -325,7 +324,7 @@ def group(img):
             visited_node[node] = True
             finished_node[node] = True
             # logger_backtrack.info(f"\t Go to {backtrack.__name__}()")
-            
+
             # logger_backtrack.info(f"\t\t graph[node]: \t{graph[node]}")
             backtrack(lines_node, temp, graph, visited_node, finished_node, node)
     # logger_backtrack.info(f"lines_node: {lines_node}")
@@ -333,7 +332,9 @@ def group(img):
 
     # TODO: Check after backtrack
     connected_node = get_path_points(graph, lines_node)
-    export_image_from_lines(image_size[0], image_size[1], connected_node, "03-after-backtrack")
+    export_image_from_lines(
+        image_size[0], image_size[1], connected_node, "03-after-backtrack"
+    )
 
     # (3) filter lines with length, direction criteria
     lines = []
@@ -363,7 +364,9 @@ def group(img):
         if wrong or len(line) < 10:
             continue
         lines.append(line)
-    export_image_from_lines(image_size[0], image_size[1], lines_before_filter, "04-before-filter")
+    export_image_from_lines(
+        image_size[0], image_size[1], lines_before_filter, "04-before-filter"
+    )
     return lines
 
 
@@ -460,13 +463,14 @@ def extract_feature_2(line: list, image_height: int, image_width: int):
 
     for i in range(N):
         l = line[i * step : (i + 1) * step]
-        
+
         if len(l) > 0:
             mean_direction = np.mean(np.diff(l, axis=0), axis=0)
             feature = np.append(feature, mean_direction)
         else:
             feature = np.append(feature, [0, 0])
     return feature
+
 
 # find 3 cluster centers in feature space
 # we can use pre-trained centers for testing
@@ -480,7 +484,7 @@ def get_cluster_centers(new_centers=False):
             212,
             220,
             249,
-            256, 
+            256,
             295,
             304,
             396,
@@ -491,7 +495,7 @@ def get_cluster_centers(new_centers=False):
             992,
         ]
 
-        # TODO: Add cutsom output_path 
+        # TODO: Add cutsom output_path
         my_output_path = f"./output/good_sample"
         check_path_compatibility(my_output_path)
         remove_all_files(my_output_path)
@@ -521,9 +525,11 @@ def get_cluster_centers(new_centers=False):
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             skeleton = skeletonize(gray_img)
             skel_img = skeleton.astype(np.uint8) * 255
-            
+
             image_name = get_filename_without_extension(img_path)
-            export_image(skel_img, f"{image_name}-skel.png", f"./output/good_sample_skel")
+            export_image(
+                skel_img, f"{image_name}-skel.png", f"./output/good_sample_skel"
+            )
 
             # TODO: Warning use original group function
             # lines = group(skel_img)
@@ -531,7 +537,7 @@ def get_cluster_centers(new_centers=False):
             # MyDebug:
             print(f"Enter group_original(): {image_name}")
             lines = group_original(skel_img)
-            
+
             for line in lines:
                 # TODO: Add cutsom image size?
                 # feature = extract_feature(line, 1024, 1024)
@@ -545,7 +551,12 @@ def get_cluster_centers(new_centers=False):
         ret, label, centers = cv2.kmeans(
             # TODO: Change k=4
             # data.astype(np.float32), 3, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
-            data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+            data.astype(np.float32),
+            n_cluster,
+            None,
+            criteria,
+            10,
+            cv2.KMEANS_RANDOM_CENTERS,
         )
 
         print(f"Center: {type(centers)}")
@@ -643,7 +654,7 @@ def get_cluster_centers(new_centers=False):
                 ],
                 dtype=np.float32,
             ),
-        ] 
+        ]
     return centers
 
 
@@ -698,7 +709,7 @@ def group_original(img):
                 temp_line_rev = list(reversed(temp_line))
                 graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
                 continue
-        
+
             while True:
                 y, x = temp_line[-1][:2]
                 not_visited[y, x] = 0
@@ -779,6 +790,7 @@ def group_original(img):
 
     return lines
 
+
 def classify(path_to_palmline_image):
     # load (rectified) test data
     # num_data = 10
@@ -790,7 +802,7 @@ def classify(path_to_palmline_image):
         centers = get_cluster_centers(True)
     else:
         centers = get_cluster_centers(True)
-    print(f"#centers: {len(centers)}")   
+    print(f"#centers: {len(centers)}")
 
     palmline_img = cv2.imread(path_to_palmline_image)
     # show_image(palmline_img, "Palm Line")
@@ -798,7 +810,7 @@ def classify(path_to_palmline_image):
     # kernel = np.ones((3, 3), np.uint8)
     # dilated = cv2.dilate(palmline_img, kernel, iterations=3)
     # eroded = cv2.erode(dilated, kernel, iterations=3)
-    
+
     # TODO: Fix
     gray_img = cv2.cvtColor(palmline_img, cv2.COLOR_BGR2GRAY)
 
@@ -834,7 +846,9 @@ def classify(path_to_palmline_image):
     return lines
 
 
-def export_image_from_lines(width: int, height: int, lines: list, output_pattern_name: str = "line"):
+def export_image_from_lines(
+    width: int, height: int, lines: list, output_pattern_name: str = "line"
+):
     line_count = 1
 
     check_path_compatibility(output_path)
@@ -850,7 +864,10 @@ def export_image_from_lines(width: int, height: int, lines: list, output_pattern
 
         line_count += 1
 
-def export_image_from_line(width: int, height: int, line: list, output_pattern_name: str = "line"):
+
+def export_image_from_line(
+    width: int, height: int, line: list, output_pattern_name: str = "line"
+):
     check_path_compatibility(output_path)
 
     binary_image = np.zeros((width, height), dtype=np.uint8)
@@ -860,19 +877,21 @@ def export_image_from_line(width: int, height: int, line: list, output_pattern_n
     cv2.imwrite(image_path, binary_image)
 
     logger.info(f"Save image: {image_path}")
-    
+
+
 def get_path_points(graph: dict, lines_node: list):
     all_path_points = []
     for line in lines_node:
         if len(line) > 1:
             path_points = []
-            for i in range(len(line)-1):
+            for i in range(len(line) - 1):
                 start_node = line[i]
-                end_node = line[i+1]
+                end_node = line[i + 1]
                 if start_node in graph and end_node in graph[start_node]:
                     path_points.extend(graph[start_node][end_node])
             all_path_points.append(path_points)
     return all_path_points
+
 
 def remove_duplicate_points_between_lines(lines: list):
     """
@@ -885,52 +904,56 @@ def remove_duplicate_points_between_lines(lines: list):
     - list of lists of lists: Unique points from each line after removal between consecutive lines.
     """
     unique_lines = []
-    
+
     for i in range(len(lines) - 1):
         line1 = lines[i]
         line2 = lines[i + 1]
-        
+
         # Convert line2 to a set of (y, x) tuples for fast lookup
         line2_set = {(point[0], point[1]) for point in line2}
-        
+
         # Use a list comprehension to filter out points in line1 that are in line2
-        unique_line = [point for point in line1 if (point[0], point[1]) not in line2_set]
-        
+        unique_line = [
+            point for point in line1 if (point[0], point[1]) not in line2_set
+        ]
+
         unique_lines.append(unique_line)
-    
+
     return unique_lines
+
 
 def remove_lines(lines):
     if not lines:
         return lines
-    
+
     total_lines = len(lines)
     point_count = defaultdict(int)
-    
+
     # Count occurrences of each (y, x) point across all lines
     for line in lines:
         unique_points = set((point[0], point[1]) for point in line)
         for point in unique_points:
             point_count[point] += 1
-    
+
     # Function to calculate percentage of points in line that are duplicate
     def calculate_duplicate_percentage(line):
         if not line:
             return 0.0
-        
+
         unique_points = set((point[0], point[1]) for point in line)
         total_points = len(line)
         duplicate_points = sum(1 for point in unique_points if point_count[point] > 1)
         return (duplicate_points / total_points) * 100
-    
+
     # Filter lines based on the criteria
     filtered_lines = []
     for line in lines:
         percentage = calculate_duplicate_percentage(line)
         if percentage > 80.0:
             filtered_lines.append(line)
-    
+
     return filtered_lines
+
 
 # mask_path = "./sample/line-cross-100x100.png"
 # mask_path = "./sample/line-complex-100x100.png"
@@ -959,7 +982,7 @@ n_cluster = 4
 # n_cluster = 3
 
 my_good = [
-    13,  
+    13,
     97,
     106,
     112,
@@ -973,16 +996,7 @@ my_good = [
     1083,
 ]
 
-my_good_4 = [
-    12,
-    104,
-    249,
-    396,
-    402,
-    487,
-    698,
-    992
-]
+my_good_4 = [12, 104, 249, 396, 402, 487, 698, 992]
 
 # TODO: Output path
 output_path = "output/process-lines"

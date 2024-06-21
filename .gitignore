@@ -25,7 +25,6 @@ ref/
 playground/
 
 src/my_playground_test*.py
-path.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
