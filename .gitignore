@@ -22,6 +22,8 @@ src/masking/
 src/masking_crack/Palm
 ref/
 
+results/
+
 playground/
 
 src/my_playground_test*.py
