@@ -1,9 +1,14 @@
-from utility.logger import *
+# MyModule: Custom module
+
 from image.image_utils import *
-from utility.project import *
-from graph.cluster import *
+from image.line import *
+
 from utility.printer import *
 from utility.matrix import *
+from utility.logger import *
+from utility.project import *
+
+from graph.cluster import *
 
 import numpy as np
 import os
@@ -234,35 +239,36 @@ def group(img):
 
         next_pos = np.transpose(np.nonzero(around))
         if next_pos.shape[0] == 0:
+            # TODO: Add count node
             # n_node += 1
             continue
-
+        
+        # MyDebug: Print matrix around, next_pos
         # print(np.nonzero(around))
         # print_matrix(next_pos, "next_pos: ")
 
         for dy, dx in next_pos:
-            # print(f"next_pos({dx}, {dy}) - #count {around[dy, dx]}")
             y, x = node
-            # print_matrix(count[y - 1 : y + 2, x - 1 : x + 2], 'check count again')
             next_y = y + dy - 1
             next_x = x + dx - 1
             if dx == 0 or (dy == 0 and dx == 1):
                 dy, dx = 2 - dy, 2 - dx
             temp_line = [[y, x, 0, 0], [next_y, next_x, dy - 1, dx - 1]]
 
+            # MyDebug: Print templine
             # print(f"temp_line")
             # print(temp_line, end="\n\n")
 
             if count[next_y, next_x] == 1 or count[next_y, next_x] >= 3:
                 not_visited[next_y, next_x] = 1
-                # MyDebug
-                # print_matrix(not_visited, "nv: (1st if)")
                 graph[tuple(temp_line[0][:2])][tuple(temp_line[-1][:2])] = temp_line
                 temp_line_rev = list(reversed(temp_line))
                 graph[tuple(temp_line[-1][:2])][tuple(temp_line[0][:2])] = temp_line_rev
-
+                
+                # MyDebug: Save templine image
                 # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
                 # n_node += 1
+
                 continue
         
             while True:
@@ -288,7 +294,6 @@ def group(img):
 
                 # check end condition
                 if count[next_y, next_x] == 1 or count[next_y, next_x] >= 3:
-                    # if len(temp_line) > 10:
                     graph[tuple(temp_line[0][:2])][tuple(temp_line[-1][:2])] = temp_line
                     temp_line_rev = list(reversed(temp_line))
                     graph[tuple(temp_line[-1][:2])][
@@ -296,9 +301,11 @@ def group(img):
                     ] = temp_line_rev
                     not_visited[next_y, next_x] = 1
                     break
-            
+
+            # MyDebug: Save templine image
             # export_image_from_line(image_size[0], image_size[1], temp_line, f"02-temp-node{n_node}-x{x}-y{y}")
-            n_node += 1        
+            # n_node += 1        
+
         not_visited[node[0], node[1]] = 1
 
     # (2) find all possible lines by graph backtracking
@@ -309,11 +316,8 @@ def group(img):
         visited_node[node] = False
         finished_node[node] = False
     
-    # logger_backtrack.info("---------------- START LOGGING -------------------")
-    # logger_backtrack.info(f"lines_node: {lines_node}")
-    # logger_backtrack.info(f"graph: {graph}")
-
     for node in nodes:
+        # MyDebug: Add logger 
         # logger_backtrack.info(f"Focus at node: {node}")
         # logger_backtrack.info(f"\t [recall] #all node: {len(visited_node)}")
         if not finished_node[node]:
@@ -544,17 +548,12 @@ def get_cluster_centers(new_centers=False):
             data.astype(np.float32), n_cluster, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
         )
 
-        # print_matrix(data, "data: ")
-        # plot_dbscan(data)
-        # plot_silhouette_scores(data, 10)
-        # plot_cluster_pca(data, n_cluster)
-
         print(f"Center: {type(centers)}")
         print(centers)
 
         # sort centers according to max_y
         centers = list(centers)
-        centers.sort(key=lambda x: x[3])
+        centers.sort(key=lambda x: x[2])
     else:
         centers = [
             np.array(
@@ -949,7 +948,8 @@ mask_path = "./sample/Results-stwcrack-Alex0342-Mask.png"
 change_to_main_root()
 print(f"current path: {os.getcwd()}")
 
-image_mask = cv2.imread(mask_path)
+# image_mask = cv2.imread(mask_path)
+image_mask = load_image(mask_path)
 check_loaded_image(image_mask)
 
 image_size = list(image_mask.shape[:2])
@@ -957,7 +957,6 @@ image_name = get_filename_without_extension(mask_path)
 
 n_cluster = 4
 # n_cluster = 3
-
 
 my_good = [
     13,  
@@ -974,45 +973,6 @@ my_good = [
     1083,
 ]
 
-centers_new1 = [
-            np.array(
-                [
-                    5.4170465, 3.8961558, 6.3814063, 5.6454954, 0.3250605, 0.8100688,
-                    0.34097046, 0.9526658, 0.40841228, 0.8891923, 0.44644922, 0.82036567,
-                    0.5481257, 0.9231054, 0.6076798, 0.8870097, 0.6225118, 0.81023467,
-                    0.68190926, 0.61726826, 0.5856578, 0.70883733, 0.5123793, 0.67894644,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.2557163, 3.7675252, 7.0953894, 5.6750093, 0.34175143, 0.9627604,
-                    0.4353329, 0.98086256, 0.5270465, 0.8735952, 0.56606346, 0.70149636,
-                    0.77529895, 0.78744084, 0.87813234, 0.65993667, 0.9252021, 0.52762437,
-                    0.94468206, 0.47014883, 0.91631913, 0.5546346, 0.66775674, 0.47080833,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.601473, 3.4987862, 7.395289, 6.690849, 0.23009704, 0.9008044,
-                    0.45073014, 0.8196588, 0.8776976, 0.63294667, 0.927213, 0.5897087,
-                    0.7820175, 0.41643777, 0.95956403, 0.14166228, 0.8708497, 0.27273476,
-                    0.6948253, 0.5874401, 0.3956642, 0.99854386, 0.1832288, 0.9599472,
-                ],
-                dtype=np.float32,
-            ),
-            np.array(
-                [
-                    5.438477, 3.5410795, 8.200345, 5.5458174, 0.15321459, 0.8810476,
-                    0.39036936, 0.90064764, 0.7141441, 0.7426404, 0.695159, 0.61015314,
-                    0.8494364, 0.4329585, 0.89095706, 0.28980485, 0.93531924, 0.2557217,
-                    0.94224215, 0.21574447, 0.8467629, 0.33156824, 0.83431816, 0.4950585,
-                ],
-                dtype=np.float32,
-            ),
-        ]
-
 my_good_4 = [
     12,
     104,
@@ -1024,19 +984,14 @@ my_good_4 = [
     992
 ]
 
-
+# TODO: Output path
 output_path = "output/process-lines"
 check_path_compatibility(output_path)
 remove_all_files(output_path)
 
+
+# TODO: Main operation
 lines = classify(mask_path)
 print(len(lines))
 export_image_from_lines(image_size[0], image_size[1], lines, "07-after-classify")
-# cv2.imshow("Skel", cv2.imread("./output/process-lines/skel.png"))
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-
-# skel_img = load_image("./output/process-lines/skel.png")
-# show_image(skel_img)
-
 print(f"#lines: {len(lines)}")

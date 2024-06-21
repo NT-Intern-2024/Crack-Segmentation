@@ -13,7 +13,6 @@ data/Palm/*
 # !data/Palm/PalmAll/
 !data/MySample*
 
-
 output/*
 !output/dataset/
 !output/mask-output/
